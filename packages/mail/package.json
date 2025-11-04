@@ -10,7 +10,7 @@
 		"react": "19.2.0",
 		"react-dom": "19.2.0",
 		"react-email": "^4.3.2",
-		"resend": "^6.2.2",
+		"resend": "^6.4.0",
 		"use-intl": "^4.4.0"
 	},
 	"devDependencies": {
