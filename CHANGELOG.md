@@ -1,5 +1,11 @@
 # Changelog
 
+## 2025-11-12 v1.0.9
+
+### Fix passkeys reload issue
+
+Fixed an issue where the passkeys list was not being reloaded correctly after adding or deleting a passkey.
+
 ## 2025-11-12 v1.0.8
 
 ### Fix missing fields in auth schema
