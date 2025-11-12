@@ -1,5 +1,12 @@
 # Changelog
 
+## 2025-11-12 v1.1.0
+
+### Add claude.md file
+
+For a better coding experience with Claude Code, we have added a `claude.md` file to the root of the repository.
+This file contains the coding guidelines for the project, and is used by Claude Code to generate code.
+
 ## 2025-11-12 v1.0.9
 
 ### Fix passkeys reload issue
