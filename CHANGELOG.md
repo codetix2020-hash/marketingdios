@@ -1,5 +1,15 @@
 # Changelog
 
+## 2025-11-16 v1.1.1
+
+### Remove unnecessary font-sans variable
+
+Removed the unnecessary `--font-sans` variable from the theme.css file as it is already defined the the `layout.tsx` file where the font is imported and injected to the html element.
+
+### Updated dependencies
+
+All production and development dependencies have been updated to the latest versions.
+
 ## 2025-11-12 v1.1.0
 
 ### Add claude.md file
