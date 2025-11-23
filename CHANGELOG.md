@@ -1,5 +1,13 @@
 # Changelog
 
+# 2025-11-23 v1.1.3
+
+### Fix active sessions block
+
+Fixed an issue where the removing the current session from the active sessions block was causing a redirect loop on the login page.
+
+---
+
 ## 2025-11-20 v1.1.2
 
 ### Fix missing organization settings item in navbar
