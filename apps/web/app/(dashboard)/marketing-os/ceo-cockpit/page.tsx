@@ -9,6 +9,8 @@ import { orpcClient } from "@shared/lib/orpc-client";
 import { redirect } from "next/navigation";
 import { CEOCockpit } from "./components/CEOCockpit";
 
+export const dynamic = 'force-dynamic';
+
 export default async function CEOCockpitPage() {
 	const session = await getSession();
 
