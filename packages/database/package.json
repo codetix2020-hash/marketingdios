@@ -16,7 +16,8 @@
 		"dotenv-cli": "^11.0.0",
 		"drizzle-kit": "^0.31.7",
 		"prisma": "6.19.0",
-		"prisma-zod-generator": "^1.32.1"
+		"prisma-zod-generator": "^1.32.1",
+		"tsx": "^4.19.2"
 	},
 	"main": "./index.ts",
 	"name": "@repo/database",
@@ -26,6 +27,9 @@
 		"migrate": "dotenv -c -e ../../.env -- prisma migrate dev --schema=./prisma/schema.prisma",
 		"studio": "dotenv -c -e ../../.env -- prisma studio --schema=./prisma/schema.prisma",
 		"type-check": "tsc --noEmit"
+	},
+	"prisma": {
+		"seed": "tsx prisma/seed.ts"
 	},
 	"types": "./**/.tsx",
 	"version": "0.0.0"

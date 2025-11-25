@@ -41,6 +41,9 @@ model User {
   members            Member[]
   twofactors         TwoFactor[]
   aiChats            AiChat[]
+  marketingContent   MarketingContent[]
+  marketingAdCampaigns MarketingAdCampaign[]
+  marketingLogs      MarketingLog[]
 
   @@unique([email])
   @@unique([username])
@@ -139,6 +142,17 @@ model Organization {
   invitations        Invitation[]
   purchases          Purchase[]
   aiChats            AiChat[]
+  marketingContent   MarketingContent[]
+  marketingSeo       MarketingSeo[]
+  marketingAdCampaigns MarketingAdCampaign[]
+  marketingPublications MarketingPublication[]
+  socialMediaAccounts SocialMediaAccount[]
+  marketingKpis      MarketingKpi[]
+  marketingLogs      MarketingLog[]
+  marketingLearnings MarketingLearning[]
+  marketingConfig    MarketingConfig?
+  marketingUsage     MarketingUsage[]
+  marketingOnboarding MarketingOnboarding?
 
   @@unique([slug])
   @@map("organization")
@@ -207,4 +221,327 @@ model AiChat {
   updatedAt      DateTime      @updatedAt
 
   @@map("ai_chat")
+}
+
+// MarketingOS - Modo Dios Models
+
+enum MarketingContentType {
+  EMAIL
+  POST
+  REEL
+  BLOG
+}
+
+enum MarketingContentStatus {
+  DRAFT
+  GENERATED
+  OPTIMIZED
+  PUBLISHED
+  ARCHIVED
+}
+
+model MarketingContent {
+  id             String                @id @default(cuid())
+  organizationId String
+  organization   Organization          @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type           MarketingContentType
+  status         MarketingContentStatus @default(DRAFT)
+  title          String?
+  content        String                @db.Text
+  metadata       Json?                 // SEO metadata, tags, etc.
+  aiPrompt       String?               @db.Text
+  aiModel        String?
+  optimizationData Json?               // Datos de optimización SEO/ADS
+  publishedAt    DateTime?
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+  publications   MarketingPublication[]
+
+  @@index([organizationId])
+  @@index([userId])
+  @@index([type])
+  @@index([status])
+  @@map("marketing_content")
+}
+
+enum SeoAnalysisStatus {
+  PENDING
+  ANALYZING
+  COMPLETED
+  FAILED
+}
+
+model MarketingSeo {
+  id             String            @id @default(cuid())
+  organizationId String
+  organization   Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  url            String
+  status         SeoAnalysisStatus @default(PENDING)
+  score          Int?              // Score SEO 0-100
+  analysis       Json?             // Análisis completo (keywords, meta tags, etc.)
+  recommendations Json?            // Recomendaciones de optimización
+  optimizedContent String?         @db.Text
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  @@index([organizationId])
+  @@index([url])
+  @@map("marketing_seo")
+}
+
+enum AdCampaignStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  COMPLETED
+  ARCHIVED
+}
+
+enum AdPlatform {
+  GOOGLE_ADS
+  FACEBOOK_ADS
+  INSTAGRAM_ADS
+  LINKEDIN_ADS
+  TWITTER_ADS
+}
+
+model MarketingAdCampaign {
+  id             String            @id @default(cuid())
+  organizationId String
+  organization   Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name           String
+  platform       AdPlatform
+  status         AdCampaignStatus  @default(DRAFT)
+  budget         Float?
+  targetAudience Json?             // Audiencia objetivo
+  keywords       Json?             // Keywords para la campaña
+  adCopy         String            @db.Text
+  aiGenerated    Boolean           @default(false)
+  externalId     String?           // ID en la plataforma externa
+  performance    MarketingAdPerformance[]
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  @@index([organizationId])
+  @@index([userId])
+  @@index([status])
+  @@index([platform])
+  @@map("marketing_ad_campaign")
+}
+
+model MarketingAdPerformance {
+  id             String              @id @default(cuid())
+  campaignId     String
+  campaign       MarketingAdCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  impressions   Int                 @default(0)
+  clicks         Int                 @default(0)
+  conversions    Int                 @default(0)
+  spend          Float               @default(0)
+  revenue        Float               @default(0)
+  ctr            Float?              // Click-through rate
+  cpc            Float?              // Cost per click
+  cpa            Float?              // Cost per acquisition
+  roas           Float?              // Return on ad spend
+  date           DateTime
+  metadata       Json?               // Datos adicionales de la plataforma
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  @@index([campaignId])
+  @@index([date])
+  @@map("marketing_ad_performance")
+}
+
+enum SocialMediaPlatform {
+  FACEBOOK
+  INSTAGRAM
+  TWITTER
+  LINKEDIN
+  TIKTOK
+  YOUTUBE
+}
+
+enum PublicationStatus {
+  SCHEDULED
+  PUBLISHING
+  PUBLISHED
+  FAILED
+}
+
+model MarketingPublication {
+  id             String              @id @default(cuid())
+  organizationId String
+  organization   Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  contentId      String?
+  content        MarketingContent?   @relation(fields: [contentId], references: [id], onDelete: SetNull)
+  platform       SocialMediaPlatform
+  status         PublicationStatus   @default(SCHEDULED)
+  scheduledAt    DateTime?
+  publishedAt    DateTime?
+  externalId     String?             // ID en la plataforma externa
+  url            String?
+  error          String?             @db.Text
+  metadata       Json?               // Datos adicionales de la publicación
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  @@index([organizationId])
+  @@index([contentId])
+  @@index([platform])
+  @@index([status])
+  @@index([scheduledAt])
+  @@map("marketing_publication")
+}
+
+model SocialMediaAccount {
+  id             String              @id @default(cuid())
+  organizationId String
+  organization   Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  platform       SocialMediaPlatform
+  accountName    String
+  accountId      String              // ID en la plataforma
+  accessToken    String              @db.Text
+  refreshToken   String?             @db.Text
+  expiresAt      DateTime?
+  isActive       Boolean             @default(true)
+  metadata       Json?               // Datos adicionales de la cuenta
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  @@unique([organizationId, platform, accountId])
+  @@index([organizationId])
+  @@index([platform])
+  @@map("social_media_account")
+}
+
+model MarketingKpi {
+  id             String        @id @default(cuid())
+  organizationId String
+  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  date           DateTime
+  metric         String        // Nombre del KPI (e.g., "total_content", "seo_score", "ad_spend")
+  value          Float
+  metadata       Json?         // Datos adicionales del KPI
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@index([organizationId])
+  @@index([date])
+  @@index([metric])
+  @@map("marketing_kpi")
+}
+
+enum LogLevel {
+  INFO
+  WARNING
+  ERROR
+  SUCCESS
+}
+
+model MarketingLog {
+  id             String        @id @default(cuid())
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  userId         String?
+  user           User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  level          LogLevel
+  category       String        // "content", "seo", "ads", "publication", "automation"
+  message        String        @db.Text
+  metadata       Json?         // Datos adicionales del log
+  createdAt      DateTime      @default(now())
+
+  @@index([organizationId])
+  @@index([userId])
+  @@index([level])
+  @@index([category])
+  @@index([createdAt])
+  @@map("marketing_log")
+}
+
+model MarketingLearning {
+  id             String        @id @default(cuid())
+  organizationId String
+  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  eventType      String        // Tipo de evento aprendido
+  eventData      Json          // Datos del evento
+  insights       Json?         // Insights generados
+  applied        Boolean       @default(false)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@index([organizationId])
+  @@index([eventType])
+  @@index([applied])
+  @@map("marketing_learning")
+}
+
+// MarketingOS - Configuración y Límites
+
+enum MarketingPlanType {
+  GOD_MODE
+  CLIENT_PREMIUM
+  TRIAL
+}
+
+model MarketingConfig {
+  id             String          @id @default(cuid())
+  organizationId String          @unique
+  organization   Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  planType       MarketingPlanType @default(TRIAL)
+  autoPilotEnabled Boolean        @default(false)
+  autoPilotFrequency String?      // "6h", "12h", "30m" (solo para GOD_MODE)
+  aiModel        String?         // "gpt-4o", "gpt-4o-mini", "claude-3-5-sonnet"
+  optimizationFrequency String?   // "30m", "1h", "6h" (solo para GOD_MODE)
+  reportFrequency String?       // "daily", "weekly" (daily solo para GOD_MODE)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  @@map("marketing_config")
+}
+
+model MarketingUsage {
+  id             String        @id @default(cuid())
+  organizationId String
+  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  month          Int           // 1-12
+  year           Int           // 2024, 2025, etc.
+  contentGenerated Int         @default(0)
+  seoAnalyses    Int           @default(0)
+  adCampaigns    Int           @default(0)
+  publications   Int           @default(0)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@unique([organizationId, month, year])
+  @@index([organizationId])
+  @@map("marketing_usage")
+}
+
+enum OnboardingStep {
+  BUSINESS_INFO
+  SOCIAL_MEDIA
+  OBJECTIVES
+  TONE_STYLE
+  AUTOPILOT
+  COMPLETED
+}
+
+model MarketingOnboarding {
+  id             String          @id @default(cuid())
+  organizationId String          @unique
+  organization   Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  currentStep    OnboardingStep  @default(BUSINESS_INFO)
+  completed      Boolean         @default(false)
+  businessInfo   Json?           // Información del negocio
+  socialMedia    Json?           // Redes sociales configuradas
+  objectives     Json?           // Objetivos de marketing
+  toneStyle      Json?           // Tono y estilo preferido
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  @@map("marketing_onboarding")
 }
