@@ -51,7 +51,7 @@ export function UpgradeBanner({ feature, limit, used }: UpgradeBannerProps) {
 								: ` Te quedan ${limit - used} ${featureNames[feature]}.`}
 						</p>
 						<Link href="/marketing-os/upgrade">
-							<Button size="sm" variant={isAtLimit ? "default" : "outline"}>
+							<Button size="sm" variant={isAtLimit ? "primary" : "outline"}>
 								<Sparkles className="mr-2 h-4 w-4" />
 								Actualizar Plan
 							</Button>

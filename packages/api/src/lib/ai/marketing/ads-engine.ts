@@ -63,7 +63,6 @@ export async function generateAdCampaign(
 		const { text } = await generateText({
 			model: openai("gpt-4o-mini"),
 			prompt,
-			maxTokens: 1000,
 		});
 
 		const parsed = parseAdCampaignResponse(text, platform);
@@ -162,7 +161,6 @@ CONVERSIONS: [número esperado]`;
 		const { text } = await generateText({
 			model: openai("gpt-4o-mini"),
 			prompt,
-			maxTokens: 1500,
 		});
 
 		const parsed = parseOptimizationResponse(text);
@@ -214,7 +212,7 @@ function buildAdCampaignPrompt(options: AdCampaignOptions): string {
 	if (budget) {
 		prompt += `Presupuesto: $${budget}\n`;
 	}
-	if (keywords.length > 0) {
+	if (keywords && keywords.length > 0) {
 		prompt += `Keywords: ${keywords.join(", ")}\n`;
 	}
 	prompt += `Tono: ${tone}\n\n`;

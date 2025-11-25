@@ -52,7 +52,6 @@ export async function generateMarketingContent(
 		const { text } = await generateText({
 			model: openai("gpt-4o-mini"),
 			prompt,
-			maxTokens: getMaxTokensForType(type, length),
 		});
 
 		// Parsear la respuesta (puede incluir título y contenido)
@@ -116,13 +115,15 @@ function buildContentPrompt(options: ContentGenerationOptions): string {
 	let prompt = `Eres un experto en marketing digital y generación de contenido. ${typeInstructions[type]}\n\n`;
 	prompt += `Tema: ${topic}\n`;
 	prompt += `Tono: ${tone}\n`;
-	prompt += `${lengthInstructions[length]}\n`;
+	if (length) {
+		prompt += `${lengthInstructions[length]}\n`;
+	}
 
 	if (targetAudience) {
 		prompt += `Audiencia objetivo: ${targetAudience}\n`;
 	}
 
-	if (keywords.length > 0) {
+	if (keywords && keywords.length > 0) {
 		prompt += `Keywords a incluir: ${keywords.join(", ")}\n`;
 	}
 
@@ -155,7 +156,8 @@ function getMaxTokensForType(
 		long: 2,
 	};
 
-	return Math.floor(baseTokens[type] * lengthMultiplier[length]);
+	const multiplier = length ? lengthMultiplier[length] : 1;
+	return Math.floor(baseTokens[type] * multiplier);
 }
 
 /**

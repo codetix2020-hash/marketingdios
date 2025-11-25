@@ -242,8 +242,8 @@ export function AdCampaignCreator({ organizationId }: AdCampaignCreatorProps) {
 									</h3>
 									<div className="space-y-2">
 										<div className="flex items-center gap-2">
-											<Badge variant="outline">{campaign.campaign.platform}</Badge>
-											<Badge variant="outline">{campaign.campaign.status}</Badge>
+										<Badge>{campaign.campaign.platform}</Badge>
+										<Badge>{campaign.campaign.status}</Badge>
 										</div>
 										<div className="prose prose-sm max-w-none">
 											<pre className="whitespace-pre-wrap text-sm">

@@ -268,7 +268,7 @@ export function ContentGenerator({ organizationId }: ContentGeneratorProps) {
 										)}
 
 										<div className="flex gap-2">
-											<Button onClick={handlePublish} variant="default">
+											<Button onClick={handlePublish} variant="primary">
 												<Send className="mr-2 h-4 w-4" />
 												Publicar Ahora
 											</Button>

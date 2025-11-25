@@ -82,6 +82,10 @@ export async function analyzeSeo(options: SeoAnalysisOptions): Promise<SeoAnalys
 async function performSeoAnalysis(options: SeoAnalysisOptions): Promise<SeoAnalysis> {
 	const { url, content, title, metaDescription, keywords } = options;
 
+	if (!content) {
+		throw new Error("Content is required for SEO analysis");
+	}
+
 	// Análisis básico
 	const wordCount = content.split(/\s+/).length;
 	const hasH1 = /<h1[^>]*>.*?<\/h1>/i.test(content);
@@ -91,38 +95,40 @@ async function performSeoAnalysis(options: SeoAnalysisOptions): Promise<SeoAnaly
 	const externalLinks = (content.match(/href=["']https?:\/\/(?!.*\b(?:localhost|127\.0\.0\.1))/gi) || []).length;
 
 	// Análisis de título
-	const titleAnalysis = analyzeTitle(title);
+	const titleAnalysis = analyzeTitle(title ?? "");
 	
 	// Análisis de meta description
-	const metaAnalysis = analyzeMetaDescription(metaDescription);
+	const metaAnalysis = analyzeMetaDescription(metaDescription ?? "");
 
 	// Análisis de keywords
-	const keywordAnalysis = analyzeKeywords(content, keywords);
+	const keywordAnalysis = analyzeKeywords(content, keywords ?? []);
 
 	// Análisis de contenido
 	const contentAnalysis = analyzeContentQuality(content);
 
 	// Análisis técnico
-	const technicalAnalysis = {
+	const technicalData = {
 		hasH1,
 		hasH2,
 		imageAltTags,
 		internalLinks,
 		externalLinks,
-		recommendations: generateTechnicalRecommendations({
-			hasH1,
-			hasH2,
-			imageAltTags,
-			internalLinks,
-			externalLinks,
-		}),
+		recommendations: [] as string[],
 	};
+	technicalData.recommendations = generateTechnicalRecommendations(technicalData);
+	const technicalAnalysis = technicalData;
 
 	// Calcular score general
+	// Calcular score de keywords basado en densidad y recomendaciones
+	const keywordsArray = keywords ?? [];
+	const keywordScore = keywordsArray.length > 0 
+		? Math.min(100, 70 + (keywordsArray.length * 5) - (keywordAnalysis.recommendations.length * 5))
+		: 70;
+	
 	const score = calculateSeoScore({
 		title: titleAnalysis.score,
 		meta: metaAnalysis.score,
-		keywords: keywordAnalysis.score || 70,
+		keywords: keywordScore,
 		content: contentAnalysis.score,
 		technical: calculateTechnicalScore(technicalAnalysis),
 	});
@@ -142,9 +148,9 @@ async function performSeoAnalysis(options: SeoAnalysisOptions): Promise<SeoAnaly
 	if (score < 70 && content) {
 		optimizedContent = await generateOptimizedContent({
 			originalContent: content,
-			title,
-			metaDescription,
-			keywords,
+			title: title ?? undefined,
+			metaDescription: metaDescription ?? undefined,
+			keywords: keywords ?? [],
 			recommendations,
 		});
 	}
@@ -436,7 +442,6 @@ Solo devuelve el contenido optimizado, sin explicaciones adicionales.`;
 		const { text } = await generateText({
 			model: openai("gpt-4o-mini"),
 			prompt,
-			maxTokens: 2000,
 		});
 
 		return text;

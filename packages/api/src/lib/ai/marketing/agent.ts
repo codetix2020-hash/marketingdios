@@ -159,7 +159,6 @@ Genera un análisis JSON con:
 	const { text: analysisText } = await generateText({
 		model: openai("gpt-4o-mini"),
 		prompt: analysisPrompt,
-		maxTokens: 2000,
 	});
 
 	// Parsear respuesta
@@ -315,7 +314,6 @@ Genera recomendaciones de estrategia en formato JSON:
 	const { text: strategyText } = await generateText({
 		model: openai("gpt-4o-mini"),
 		prompt: strategyPrompt,
-		maxTokens: 1500,
 	});
 
 	// Parsear estrategias

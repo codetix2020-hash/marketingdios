@@ -209,9 +209,8 @@ export function SEOAnalyzer({ organizationId }: SEOAnalyzerProps) {
 													<div className="space-y-2">
 														<div className="flex items-center justify-between">
 															<span className="text-sm font-medium">Título</span>
-															<Badge
-																variant="outline"
-																className={
+														<Badge
+															className={
 																	analysis.analysis.title.score >= 80
 																		? "border-green-500 text-green-500"
 																		: analysis.analysis.title.score >= 60
@@ -239,9 +238,8 @@ export function SEOAnalyzer({ organizationId }: SEOAnalyzerProps) {
 															<span className="text-sm font-medium">
 																Meta Description
 															</span>
-															<Badge
-																variant="outline"
-																className={
+														<Badge
+															className={
 																	analysis.analysis.metaDescription.score >= 80
 																		? "border-green-500 text-green-500"
 																		: analysis.analysis.metaDescription.score >= 60
@@ -268,9 +266,8 @@ export function SEOAnalyzer({ organizationId }: SEOAnalyzerProps) {
 													<div className="space-y-2">
 														<div className="flex items-center justify-between">
 															<span className="text-sm font-medium">Contenido</span>
-															<Badge
-																variant="outline"
-																className={
+														<Badge
+															className={
 																	analysis.analysis.content.score >= 80
 																		? "border-green-500 text-green-500"
 																		: analysis.analysis.content.score >= 60

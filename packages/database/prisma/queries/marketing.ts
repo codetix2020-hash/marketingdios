@@ -15,13 +15,17 @@ export async function createMarketingContent(data: {
 	status?: "DRAFT" | "GENERATED" | "OPTIMIZED" | "PUBLISHED" | "ARCHIVED";
 	title?: string;
 	content: string;
-	metadata?: Prisma.JsonValue;
+	metadata?: Prisma.InputJsonValue;
 	aiPrompt?: string;
 	aiModel?: string;
-	optimizationData?: Prisma.JsonValue;
+	optimizationData?: Prisma.InputJsonValue;
 }) {
 	return await db.marketingContent.create({
-		data,
+		data: {
+			...data,
+			metadata: data.metadata ?? undefined,
+			optimizationData: data.optimizationData ?? undefined,
+		},
 	});
 }
 
@@ -76,14 +80,14 @@ export async function listMarketingContent(options: {
 
 export async function updateMarketingContent(
 	id: string,
-	data: {
-		status?: "DRAFT" | "GENERATED" | "OPTIMIZED" | "PUBLISHED" | "ARCHIVED";
-		title?: string;
-		content?: string;
-		metadata?: Prisma.JsonValue;
-		optimizationData?: Prisma.JsonValue;
-		publishedAt?: Date | null;
-	},
+		data: {
+			status?: "DRAFT" | "GENERATED" | "OPTIMIZED" | "PUBLISHED" | "ARCHIVED";
+			title?: string;
+			content?: string;
+			metadata?: Prisma.InputJsonValue;
+			optimizationData?: Prisma.InputJsonValue;
+			publishedAt?: Date | null;
+		},
 ) {
 	return await db.marketingContent.update({
 		where: { id },
@@ -104,12 +108,16 @@ export async function createMarketingSeo(data: {
 	url: string;
 	status?: "PENDING" | "ANALYZING" | "COMPLETED" | "FAILED";
 	score?: number;
-	analysis?: Prisma.JsonValue;
-	recommendations?: Prisma.JsonValue;
+	analysis?: Prisma.InputJsonValue;
+	recommendations?: Prisma.InputJsonValue;
 	optimizedContent?: string;
 }) {
 	return await db.marketingSeo.create({
-		data,
+		data: {
+			...data,
+			analysis: data.analysis ?? undefined,
+			recommendations: data.recommendations ?? undefined,
+		},
 	});
 }
 
@@ -145,13 +153,13 @@ export async function listMarketingSeo(options: {
 
 export async function updateMarketingSeo(
 	id: string,
-	data: {
-		status?: "PENDING" | "ANALYZING" | "COMPLETED" | "FAILED";
-		score?: number;
-		analysis?: Prisma.JsonValue;
-		recommendations?: Prisma.JsonValue;
-		optimizedContent?: string;
-	},
+		data: {
+			status?: "PENDING" | "ANALYZING" | "COMPLETED" | "FAILED";
+			score?: number;
+			analysis?: Prisma.InputJsonValue;
+			recommendations?: Prisma.InputJsonValue;
+			optimizedContent?: string;
+		},
 ) {
 	return await db.marketingSeo.update({
 		where: { id },
@@ -168,14 +176,18 @@ export async function createMarketingAdCampaign(data: {
 	platform: "GOOGLE_ADS" | "FACEBOOK_ADS" | "INSTAGRAM_ADS" | "LINKEDIN_ADS" | "TWITTER_ADS";
 	status?: "DRAFT" | "ACTIVE" | "PAUSED" | "COMPLETED" | "ARCHIVED";
 	budget?: number;
-	targetAudience?: Prisma.JsonValue;
-	keywords?: Prisma.JsonValue;
+	targetAudience?: Prisma.InputJsonValue;
+	keywords?: Prisma.InputJsonValue;
 	adCopy: string;
 	aiGenerated?: boolean;
 	externalId?: string;
 }) {
 	return await db.marketingAdCampaign.create({
-		data,
+		data: {
+			...data,
+			targetAudience: data.targetAudience ?? undefined,
+			keywords: data.keywords ?? undefined,
+		},
 	});
 }
 
@@ -233,15 +245,15 @@ export async function listMarketingAdCampaigns(options: {
 
 export async function updateMarketingAdCampaign(
 	id: string,
-	data: {
-		name?: string;
-		status?: "DRAFT" | "ACTIVE" | "PAUSED" | "COMPLETED" | "ARCHIVED";
-		budget?: number;
-		targetAudience?: Prisma.JsonValue;
-		keywords?: Prisma.JsonValue;
-		adCopy?: string;
-		externalId?: string;
-	},
+		data: {
+			name?: string;
+			status?: "DRAFT" | "ACTIVE" | "PAUSED" | "COMPLETED" | "ARCHIVED";
+			budget?: number;
+			targetAudience?: Prisma.InputJsonValue;
+			keywords?: Prisma.InputJsonValue;
+			adCopy?: string;
+			externalId?: string;
+		},
 ) {
 	return await db.marketingAdCampaign.update({
 		where: { id },
@@ -261,10 +273,13 @@ export async function createMarketingAdPerformance(data: {
 	cpa?: number;
 	roas?: number;
 	date: Date;
-	metadata?: Prisma.JsonValue;
+	metadata?: Prisma.InputJsonValue;
 }) {
 	return await db.marketingAdPerformance.create({
-		data,
+		data: {
+			...data,
+			metadata: data.metadata ?? undefined,
+		},
 	});
 }
 
@@ -280,10 +295,13 @@ export async function createMarketingPublication(data: {
 	externalId?: string;
 	url?: string;
 	error?: string;
-	metadata?: Prisma.JsonValue;
+	metadata?: Prisma.InputJsonValue;
 }) {
 	return await db.marketingPublication.create({
-		data,
+		data: {
+			...data,
+			metadata: data.metadata ?? undefined,
+		},
 	});
 }
 
@@ -325,14 +343,14 @@ export async function listMarketingPublications(options: {
 
 export async function updateMarketingPublication(
 	id: string,
-	data: {
-		status?: "SCHEDULED" | "PUBLISHING" | "PUBLISHED" | "FAILED";
-		publishedAt?: Date | null;
-		externalId?: string;
-		url?: string;
-		error?: string | null;
-		metadata?: Prisma.JsonValue;
-	},
+		data: {
+			status?: "SCHEDULED" | "PUBLISHING" | "PUBLISHED" | "FAILED";
+			publishedAt?: Date | null;
+			externalId?: string;
+			url?: string;
+			error?: string | null;
+			metadata?: Prisma.InputJsonValue;
+		},
 ) {
 	return await db.marketingPublication.update({
 		where: { id },
@@ -351,10 +369,13 @@ export async function createSocialMediaAccount(data: {
 	refreshToken?: string;
 	expiresAt?: Date;
 	isActive?: boolean;
-	metadata?: Prisma.JsonValue;
+	metadata?: Prisma.InputJsonValue;
 }) {
 	return await db.socialMediaAccount.create({
-		data,
+		data: {
+			...data,
+			metadata: data.metadata ?? undefined,
+		},
 	});
 }
 
@@ -377,14 +398,14 @@ export async function listSocialMediaAccounts(options: {
 
 export async function updateSocialMediaAccount(
 	id: string,
-	data: {
-		accountName?: string;
-		accessToken?: string;
-		refreshToken?: string;
-		expiresAt?: Date | null;
-		isActive?: boolean;
-		metadata?: Prisma.JsonValue;
-	},
+		data: {
+			accountName?: string;
+			accessToken?: string;
+			refreshToken?: string;
+			expiresAt?: Date | null;
+			isActive?: boolean;
+			metadata?: Prisma.InputJsonValue;
+		},
 ) {
 	return await db.socialMediaAccount.update({
 		where: { id },
@@ -399,10 +420,13 @@ export async function createMarketingKpi(data: {
 	date: Date;
 	metric: string;
 	value: number;
-	metadata?: Prisma.JsonValue;
+	metadata?: Prisma.InputJsonValue;
 }) {
 	return await db.marketingKpi.create({
-		data,
+		data: {
+			...data,
+			metadata: data.metadata ?? undefined,
+		},
 	});
 }
 
@@ -437,10 +461,13 @@ export async function createMarketingLog(data: {
 	level: "INFO" | "WARNING" | "ERROR" | "SUCCESS";
 	category: string;
 	message: string;
-	metadata?: Prisma.JsonValue;
+	metadata?: Prisma.InputJsonValue;
 }) {
 	return await db.marketingLog.create({
-		data,
+		data: {
+			...data,
+			metadata: data.metadata ?? undefined,
+		},
 	});
 }
 
@@ -483,12 +510,15 @@ export async function listMarketingLogs(options: {
 export async function createMarketingLearning(data: {
 	organizationId: string;
 	eventType: string;
-	eventData: Prisma.JsonValue;
-	insights?: Prisma.JsonValue;
+	eventData: Prisma.InputJsonValue;
+	insights?: Prisma.InputJsonValue;
 	applied?: boolean;
 }) {
 	return await db.marketingLearning.create({
-		data,
+		data: {
+			...data,
+			insights: data.insights ?? undefined,
+		},
 	});
 }
 
@@ -515,10 +545,10 @@ export async function listMarketingLearnings(options: {
 
 export async function updateMarketingLearning(
 	id: string,
-	data: {
-		insights?: Prisma.JsonValue;
-		applied?: boolean;
-	},
+		data: {
+			insights?: Prisma.InputJsonValue;
+			applied?: boolean;
+		},
 ) {
 	return await db.marketingLearning.update({
 		where: { id },

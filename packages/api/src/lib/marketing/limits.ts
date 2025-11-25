@@ -9,7 +9,8 @@
  */
 
 import { getMarketingConfig, getMarketingUsage, createMarketingUsage, updateMarketingUsage } from "@repo/database";
-import type { MarketingPlanType } from "@repo/database";
+
+export type MarketingPlanType = "GOD_MODE" | "CLIENT_PREMIUM" | "TRIAL";
 
 export interface UsageLimits {
 	contentPerMonth: number | null; // null = ilimitado

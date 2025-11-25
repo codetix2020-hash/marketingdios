@@ -185,7 +185,7 @@ export function AdvancedLogsView({ organizationId }: AdvancedLogsViewProps) {
 											<Icon className={`h-5 w-5 mt-0.5 ${colorClass}`} />
 											<div className="flex-1 min-w-0">
 												<div className="flex items-center gap-2 mb-1">
-													<Badge variant="outline" className={colorClass}>
+													<Badge className={colorClass}>
 														{log.level}
 													</Badge>
 													<span className="text-xs text-muted-foreground">
@@ -228,7 +228,7 @@ export function AdvancedLogsView({ organizationId }: AdvancedLogsViewProps) {
 												<Icon className={`h-5 w-5 mt-0.5 ${colorClass}`} />
 												<div className="flex-1 min-w-0">
 													<div className="flex items-center gap-2 mb-1">
-														<Badge variant="outline" className={colorClass}>
+														<Badge className={colorClass}>
 															{log.level}
 														</Badge>
 														<span className="text-xs text-muted-foreground ml-auto">

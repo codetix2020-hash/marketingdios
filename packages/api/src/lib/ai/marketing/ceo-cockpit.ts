@@ -182,7 +182,6 @@ Genera un análisis ejecutivo en formato JSON:
 	const { text: insightsText } = await generateText({
 		model: isGodModeOrg ? openai("gpt-4o") : openai("gpt-4o-mini"),
 		prompt: insightsPrompt,
-		maxTokens: 3000,
 	});
 
 	// Parsear respuesta

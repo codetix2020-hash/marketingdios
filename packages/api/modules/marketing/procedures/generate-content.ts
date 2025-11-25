@@ -43,7 +43,7 @@ export const generateContent = protectedProcedure
 		const { canUseFeature, incrementUsage } = await import("../../../src/lib/marketing");
 		const limitCheck = await canUseFeature(organizationId, "content");
 		if (!limitCheck.allowed) {
-			throw new ORPCError("FORBIDDEN", limitCheck.reason);
+			throw new ORPCError("FORBIDDEN", { message: limitCheck.reason ?? "Limit exceeded" });
 		}
 
 		try {

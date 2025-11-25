@@ -29,9 +29,9 @@ export function CEOCockpit({ organizationId }: CEOCockpitProps) {
 					score: 75,
 					summary: "El negocio está en buen estado con oportunidades de crecimiento",
 					keyMetrics: [
-						{ label: "Performance Score", value: 75, trend: "up" as const },
-						{ label: "Contenido Generado", value: 42, trend: "up" as const },
-						{ label: "Campañas Activas", value: 3, trend: "stable" as const },
+						{ label: "Performance Score", value: 75, trend: "up" as "up" | "down" | "stable" },
+						{ label: "Contenido Generado", value: 42, trend: "up" as "up" | "down" | "stable" },
+						{ label: "Campañas Activas", value: 3, trend: "stable" as "up" | "down" | "stable" },
 					],
 				},
 				opportunities: [
@@ -134,13 +134,15 @@ export function CEOCockpit({ organizationId }: CEOCockpitProps) {
 									<div className="text-sm text-muted-foreground mb-1">{metric.label}</div>
 									<div className="flex items-center gap-2">
 										<span className="text-2xl font-bold">{metric.value}</span>
-										{metric.trend === "up" ? (
-											<TrendingUp className="h-4 w-4 text-green-500" />
-										) : metric.trend === "down" ? (
-											<TrendingDown className="h-4 w-4 text-red-500" />
-										) : (
-											<div className="h-4 w-4 rounded-full bg-gray-400" />
-										)}
+									{metric.trend === "up" && (
+										<TrendingUp className="h-4 w-4 text-green-500" />
+									)}
+									{metric.trend === "down" && (
+										<TrendingDown className="h-4 w-4 text-red-500" />
+									)}
+									{metric.trend === "stable" && (
+										<div className="h-4 w-4 rounded-full bg-gray-400" />
+									)}
 									</div>
 								</div>
 							))}
@@ -180,8 +182,8 @@ export function CEOCockpit({ organizationId }: CEOCockpitProps) {
 								</CardHeader>
 								<CardContent className="space-y-2">
 									<div className="flex items-center gap-2">
-										<Badge variant="outline">Impacto: {opp.potentialImpact}</Badge>
-										<Badge variant="outline">Esfuerzo: {opp.effort}</Badge>
+									<Badge>Impacto: {opp.potentialImpact}</Badge>
+									<Badge>Esfuerzo: {opp.effort}</Badge>
 									</div>
 									<p className="text-sm text-muted-foreground">
 										ROI Estimado: {opp.estimatedROI}
@@ -205,10 +207,10 @@ export function CEOCockpit({ organizationId }: CEOCockpitProps) {
 								</CardHeader>
 								<CardContent className="space-y-2">
 									<div className="flex items-center gap-2">
-										<Badge variant="outline" className="bg-red-500/10 text-red-500">
-											Severidad: {risk.severity}
-										</Badge>
-										<Badge variant="outline">Probabilidad: {risk.probability}</Badge>
+									<Badge className="bg-red-500/10 text-red-500">
+										Severidad: {risk.severity}
+									</Badge>
+									<Badge>Probabilidad: {risk.probability}</Badge>
 									</div>
 									<p className="text-sm">
 										<strong>Mitigación:</strong> {risk.mitigation}
@@ -228,7 +230,6 @@ export function CEOCockpit({ organizationId }: CEOCockpitProps) {
 										<div className="flex-1">
 											<div className="flex items-center gap-2 mb-2">
 												<Badge
-													variant="outline"
 													className={
 														rec.priority === "high"
 															? "bg-red-500/10 text-red-500"
@@ -270,7 +271,7 @@ export function CEOCockpit({ organizationId }: CEOCockpitProps) {
 											<div className="flex items-center gap-2 mb-1">
 												<h4 className="font-semibold">{step.action}</h4>
 												{step.automated && (
-													<Badge variant="outline" className="bg-blue-500/10 text-blue-500">
+													<Badge className="bg-blue-500/10 text-blue-500">
 														Automático
 													</Badge>
 												)}
