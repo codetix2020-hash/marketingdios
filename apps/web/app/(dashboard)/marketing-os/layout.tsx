@@ -8,6 +8,8 @@ import type { PropsWithChildren } from "react";
 import { MarketingOSNav } from "./components/MarketingOSNav";
 import { Card } from "@ui/components/card";
 
+export const dynamic = 'force-dynamic';
+
 export default function MarketingOSLayout({ children }: PropsWithChildren) {
 	return (
 		<AppWrapper>
