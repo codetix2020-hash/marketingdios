@@ -1,5 +1,5 @@
 {
-  "buildCommand": "turbo run build --filter=@repo/web",
+  "buildCommand": "turbo run generate --filter=@repo/database && turbo run build --filter=@repo/web",
   "outputDirectory": "apps/web/.next",
   "installCommand": "pnpm install",
   "framework": "nextjs",
