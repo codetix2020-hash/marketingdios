@@ -30,6 +30,7 @@
 		"type-check": "tsc --noEmit"
 	},
 	"prisma": {
+		"schema": "prisma/schema.prisma",
 		"seed": "tsx prisma/seed.ts"
 	},
 	"types": "./**/.tsx",
