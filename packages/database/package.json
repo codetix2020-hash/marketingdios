@@ -22,8 +22,8 @@
 	"main": "./index.ts",
 	"name": "@repo/database",
 	"scripts": {
-		"generate": "prisma generate --schema=./prisma/schema.prisma",
-		"postinstall": "prisma generate --schema=./prisma/schema.prisma",
+		"generate": "prisma generate",
+		"postinstall": "prisma generate",
 		"push": "dotenv -c -e ../../.env -- prisma db push --skip-generate --schema=./prisma/schema.prisma",
 		"migrate": "dotenv -c -e ../../.env -- prisma migrate dev --schema=./prisma/schema.prisma",
 		"studio": "dotenv -c -e ../../.env -- prisma studio --schema=./prisma/schema.prisma",
