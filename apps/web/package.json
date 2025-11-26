@@ -105,7 +105,7 @@
 	"name": "@repo/web",
 	"private": true,
 	"scripts": {
-		"build": "cd ../../packages/database && pnpm prisma generate && cd ../../apps/web && next build",
+		"build": "prisma generate --schema=../../packages/database/prisma/schema.prisma && next build",
 		"dev": "next dev",
 		"e2e": "pnpm exec playwright test --ui",
 		"e2e:ci": "pnpm exec playwright install && pnpm exec playwright test",
