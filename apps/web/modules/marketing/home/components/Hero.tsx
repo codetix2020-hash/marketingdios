@@ -24,12 +24,11 @@ export function Hero() {
 				</div>
 
 				<h1 className="mx-auto max-w-3xl text-balance font-bold text-5xl lg:text-7xl">
-					Your revolutionary Next.js SaaS
+					MarketingOS - Modo Dios
 				</h1>
 
 				<p className="mx-auto mt-4 max-w-lg text-balance text-foreground/60 text-lg">
-					This is a demo application built with supastarter. It will
-					save you a lot of time and effort building your next SaaS.
+					Tu departamento de marketing completo en piloto automático
 				</p>
 
 				<div className="mt-6 flex flex-col items-center justify-center gap-3 md:flex-row">
