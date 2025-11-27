@@ -1,9 +1,36 @@
-import { Suspense } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@ui/components/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@ui/components/tabs'
-import { Activity, Brain, Zap, TrendingUp, DollarSign, Users, Target, AlertTriangle, Clock, Database, Shield, Cpu } from 'lucide-react'
+import { Activity, Brain, Zap, TrendingUp, DollarSign, Users, Target, AlertTriangle, Clock, Shield, Cpu } from 'lucide-react'
+import { orpcClient } from '@shared/lib/orpc-client'
+import { getSession } from '@saas/auth/lib/server'
+import { getOrganizationList } from '@saas/organizations/lib/server'
+import { redirect } from 'next/navigation'
 
 export default async function GodModePage() {
+  const session = await getSession()
+  
+  if (!session) {
+    redirect('/auth/login')
+  }
+
+  // Get active organization
+  const organizations = await getOrganizationList()
+  const activeOrganizationId = session.session.activeOrganizationId || organizations[0]?.id
+
+  if (!activeOrganizationId) {
+    redirect('/new-organization')
+  }
+
+  // Fetch real-time stats
+  const stats = await orpcClient.marketing.godMode.getStats({
+    organizationId: activeOrganizationId,
+  })
+
+  const timeUntilNext = Math.floor((stats.orchestration.nextCycle.getTime() - Date.now()) / 1000)
+  const hours = Math.floor(timeUntilNext / 3600)
+  const minutes = Math.floor((timeUntilNext % 3600) / 60)
+  const seconds = timeUntilNext % 60
+
   return (
     <div className="space-y-6 p-6">
       {/* HERO SECTION */}
@@ -26,29 +53,29 @@ export default async function GodModePage() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <MetricCard
           title="Revenue Generado"
-          value="€12,450"
-          change="+23.5%"
+          value={`€${stats.metrics.revenue.toLocaleString()}`}
+          change={`+${stats.metrics.revenueChange}%`}
           icon={DollarSign}
           trend="up"
         />
         <MetricCard
           title="Leads Capturados"
-          value="1,247"
-          change="+18.2%"
+          value={stats.metrics.leads.toLocaleString()}
+          change={`+${stats.metrics.leadsChange}%`}
           icon={Users}
           trend="up"
         />
         <MetricCard
           title="Contenido Creado"
-          value="156"
-          change="+45 hoy"
+          value={stats.metrics.contentCreated.toString()}
+          change={`+${stats.metrics.contentToday} hoy`}
           icon={Zap}
           trend="neutral"
         />
         <MetricCard
           title="CAC Promedio"
-          value="€9.50"
-          change="-32.1%"
+          value={`€${stats.metrics.cac}`}
+          change={`${stats.metrics.cacChange}%`}
           icon={Target}
           trend="up"
         />
@@ -86,19 +113,19 @@ export default async function GodModePage() {
         {/* TAB 1: OVERVIEW */}
         <TabsContent value="overview" className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
-            <OrchestrationTimeline />
-            <SystemHealthMonitor />
+            <OrchestrationTimeline hours={hours} minutes={minutes} seconds={seconds} />
+            <SystemHealthMonitor health={stats.systemHealth} />
           </div>
           <div className="grid gap-4 md:grid-cols-3">
-            <RecentDecisions />
-            <ActiveJobs />
-            <GuardsStatus />
+            <RecentDecisions decisions={stats.recentDecisions} />
+            <ActiveJobs jobs={stats.activeJobs} />
+            <GuardsStatus guards={stats.guards} />
           </div>
         </TabsContent>
 
         {/* TAB 2: AGENTES */}
         <TabsContent value="agents" className="space-y-4">
-          <AgentsGrid />
+          <AgentsGrid agents={stats.agents} />
         </TabsContent>
 
         {/* TAB 3: CONTENIDO */}
@@ -109,7 +136,7 @@ export default async function GodModePage() {
 
         {/* TAB 4: CAMPAÑAS */}
         <TabsContent value="campaigns" className="space-y-4">
-          <CampaignsTable />
+          <CampaignsTable count={stats.activeCampaigns} />
           <BudgetDistribution />
         </TabsContent>
 
@@ -120,7 +147,7 @@ export default async function GodModePage() {
 
         {/* TAB 6: ALERTAS */}
         <TabsContent value="alerts" className="space-y-4">
-          <AlertsList />
+          <AlertsList alerts={stats.guards.alerts} />
         </TabsContent>
       </Tabs>
     </div>
@@ -171,7 +198,11 @@ function AutopilotToggle() {
   )
 }
 
-function OrchestrationTimeline() {
+function OrchestrationTimeline({ hours, minutes, seconds }: { hours: number; minutes: number; seconds: number }) {
+  const totalSeconds = hours * 3600 + minutes * 60 + seconds
+  const sixHoursInSeconds = 6 * 60 * 60
+  const progress = ((sixHoursInSeconds - totalSeconds) / sixHoursInSeconds) * 100
+
   return (
     <Card>
       <CardHeader>
@@ -184,13 +215,18 @@ function OrchestrationTimeline() {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <span>Próximo ciclo en:</span>
-            <span className="text-2xl font-mono font-bold text-purple-600">02:34:18</span>
+            <span className="text-2xl font-mono font-bold text-purple-600">
+              {String(hours).padStart(2, '0')}:{String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
+            </span>
           </div>
           <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-            <div className="h-full bg-gradient-to-r from-purple-600 to-pink-600 w-3/4 transition-all" />
+            <div 
+              className="h-full bg-gradient-to-r from-purple-600 to-pink-600 transition-all"
+              style={{ width: `${progress}%` }}
+            />
           </div>
           <div className="text-sm text-muted-foreground">
-            Última ejecución: hace 3h 26min
+            Última ejecución: hace {6 - hours}h {60 - minutes}min
           </div>
         </div>
       </CardContent>
@@ -198,7 +234,7 @@ function OrchestrationTimeline() {
   )
 }
 
-function SystemHealthMonitor() {
+function SystemHealthMonitor({ health }: { health: { agents: number; database: number; apis: number; guards: number } }) {
   return (
     <Card>
       <CardHeader>
@@ -209,10 +245,10 @@ function SystemHealthMonitor() {
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
-          <HealthBar label="Agentes" value={100} />
-          <HealthBar label="Base de Datos" value={98} />
-          <HealthBar label="APIs Externas" value={95} />
-          <HealthBar label="Guardias" value={100} />
+          <HealthBar label="Agentes" value={health.agents} />
+          <HealthBar label="Base de Datos" value={health.database} />
+          <HealthBar label="APIs Externas" value={health.apis} />
+          <HealthBar label="Guardias" value={Math.round(health.guards)} />
         </div>
       </CardContent>
     </Card>
@@ -241,13 +277,7 @@ function HealthBar({ label, value }: HealthBarProps) {
   )
 }
 
-function RecentDecisions() {
-  const decisions = [
-    { time: '14:30', action: 'Generó 5 posts virales', status: 'success' },
-    { time: '13:15', action: 'Optimizó campaña FB', status: 'success' },
-    { time: '12:00', action: 'Pausó anuncio bajo ROI', status: 'warning' },
-  ]
-
+function RecentDecisions({ decisions }: { decisions: any[] }) {
   return (
     <Card>
       <CardHeader>
@@ -255,28 +285,28 @@ function RecentDecisions() {
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
-          {decisions.map((decision, i) => (
-            <div key={i} className="flex items-start gap-3">
-              <div className={`h-2 w-2 rounded-full mt-2 ${decision.status === 'success' ? 'bg-green-600' : 'bg-yellow-600'}`} />
-              <div className="flex-1">
-                <div className="text-sm font-medium">{decision.action}</div>
-                <div className="text-xs text-muted-foreground">{decision.time}</div>
+          {decisions.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No hay decisiones recientes</p>
+          ) : (
+            decisions.map((decision) => (
+              <div key={decision.id} className="flex items-start gap-3">
+                <div className={`h-2 w-2 rounded-full mt-2 ${decision.success ? 'bg-green-600' : 'bg-yellow-600'}`} />
+                <div className="flex-1">
+                  <div className="text-sm font-medium">{decision.action}</div>
+                  <div className="text-xs text-muted-foreground">
+                    {decision.agent} - {new Date(decision.time).toLocaleTimeString()}
+                  </div>
+                </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </CardContent>
     </Card>
   )
 }
 
-function ActiveJobs() {
-  const jobs = [
-    { name: 'Content Generator', status: 'running', progress: 75 },
-    { name: 'SEO Analyzer', status: 'running', progress: 45 },
-    { name: 'Ads Optimizer', status: 'queued', progress: 0 },
-  ]
-
+function ActiveJobs({ jobs }: { jobs: any[] }) {
   return (
     <Card>
       <CardHeader>
@@ -284,35 +314,39 @@ function ActiveJobs() {
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
-          {jobs.map((job, i) => (
-            <div key={i} className="space-y-1">
-              <div className="flex justify-between text-sm">
-                <span>{job.name}</span>
-                <span className="text-xs text-muted-foreground">
-                  {job.status === 'running' ? `${job.progress}%` : 'En cola'}
-                </span>
-              </div>
-              {job.status === 'running' && (
-                <div className="h-1 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-purple-600 transition-all"
-                    style={{ width: `${job.progress}%` }}
-                  />
+          {jobs.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No hay jobs activos</p>
+          ) : (
+            jobs.map((job) => (
+              <div key={job.id} className="space-y-1">
+                <div className="flex justify-between text-sm">
+                  <span>{job.name}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {job.status === 'running' ? `${job.progress}%` : 'En cola'}
+                  </span>
                 </div>
-              )}
-            </div>
-          ))}
+                {job.status === 'running' && (
+                  <div className="h-1 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-purple-600 transition-all"
+                      style={{ width: `${job.progress}%` }}
+                    />
+                  </div>
+                )}
+              </div>
+            ))
+          )}
         </div>
       </CardContent>
     </Card>
   )
 }
 
-function GuardsStatus() {
-  const guards = [
-    { name: 'Budget Guard', status: 'active', alerts: 0 },
-    { name: 'Brand Safety', status: 'active', alerts: 0 },
-    { name: 'Performance Guard', status: 'active', alerts: 2 },
+function GuardsStatus({ guards }: { guards: { financial: number; reputation: number; legal: number; alerts: number } }) {
+  const guardsList = [
+    { name: 'Financial Guard', count: guards.financial, alerts: 0 },
+    { name: 'Reputation Guard', count: guards.reputation, alerts: 0 },
+    { name: 'Legal Guard', count: guards.legal, alerts: guards.alerts },
   ]
 
   return (
@@ -325,8 +359,8 @@ function GuardsStatus() {
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
-          {guards.map((guard, i) => (
-            <div key={i} className="flex items-center justify-between">
+          {guardsList.map((guard) => (
+            <div key={guard.name} className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="h-2 w-2 rounded-full bg-green-600 animate-pulse" />
                 <span className="text-sm">{guard.name}</span>
@@ -344,46 +378,7 @@ function GuardsStatus() {
   )
 }
 
-function AgentsGrid() {
-  const agents = [
-    { 
-      name: 'Meta-Agente Orquestador', 
-      status: 'active', 
-      lastAction: 'Planificó 12 contenidos', 
-      efficiency: 98 
-    },
-    { 
-      name: 'Agente de Contenido', 
-      status: 'active', 
-      lastAction: 'Generó 8 posts', 
-      efficiency: 95 
-    },
-    { 
-      name: 'Agente Visual', 
-      status: 'active', 
-      lastAction: 'Creó 15 imágenes', 
-      efficiency: 92 
-    },
-    { 
-      name: 'Agente de Ventas', 
-      status: 'active', 
-      lastAction: 'Calificó 45 leads', 
-      efficiency: 97 
-    },
-    { 
-      name: 'Agente de ADS', 
-      status: 'active', 
-      lastAction: 'Optimizó 3 campañas', 
-      efficiency: 94 
-    },
-    { 
-      name: 'Workflow Builder', 
-      status: 'idle', 
-      lastAction: 'Esperando tareas', 
-      efficiency: 100 
-    },
-  ]
-
+function AgentsGrid({ agents }: { agents: any[] }) {
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       {agents.map((agent) => (
@@ -467,32 +462,15 @@ function ViralBlueprintsGallery() {
   )
 }
 
-function CampaignsTable() {
-  const campaigns = [
-    { name: 'Campaign A', platform: 'Facebook', spend: '€450', roas: '3.2x', status: 'active' },
-    { name: 'Campaign B', platform: 'Google', spend: '€680', roas: '2.8x', status: 'active' },
-    { name: 'Campaign C', platform: 'Instagram', spend: '€320', roas: '4.1x', status: 'active' },
-  ]
-
+function CampaignsTable({ count }: { count: number }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Campañas Activas</CardTitle>
+        <CardTitle>Campañas Activas ({count})</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-3">
-          {campaigns.map((campaign, i) => (
-            <div key={i} className="flex items-center justify-between p-3 border rounded-lg">
-              <div>
-                <div className="font-medium">{campaign.name}</div>
-                <div className="text-sm text-muted-foreground">{campaign.platform}</div>
-              </div>
-              <div className="text-right">
-                <div className="font-mono font-bold">{campaign.roas}</div>
-                <div className="text-sm text-muted-foreground">{campaign.spend}</div>
-              </div>
-            </div>
-          ))}
+        <div className="text-center py-8 text-muted-foreground">
+          {count === 0 ? 'No hay campañas activas' : `${count} campañas en ejecución`}
         </div>
       </CardContent>
     </Card>
@@ -560,47 +538,15 @@ function PerformanceCharts() {
   )
 }
 
-function AlertsList() {
-  const alerts = [
-    { 
-      type: 'warning', 
-      message: 'Campaña "Summer Sale" superó el 90% del budget diario', 
-      time: 'hace 15 min' 
-    },
-    { 
-      type: 'info', 
-      message: 'Nueva estructura viral detectada en TikTok', 
-      time: 'hace 1h' 
-    },
-    { 
-      type: 'success', 
-      message: 'Meta-Agente completó ciclo de orquestación exitosamente', 
-      time: 'hace 3h' 
-    },
-  ]
-
+function AlertsList({ alerts }: { alerts: number }) {
   return (
     <Card>
       <CardHeader>
         <CardTitle>Alertas del Sistema</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-3">
-          {alerts.map((alert, i) => (
-            <div key={i} className="flex items-start gap-3 p-3 border rounded-lg">
-              <AlertTriangle 
-                className={`h-5 w-5 mt-0.5 ${
-                  alert.type === 'warning' ? 'text-yellow-600' : 
-                  alert.type === 'info' ? 'text-blue-600' : 
-                  'text-green-600'
-                }`} 
-              />
-              <div className="flex-1">
-                <div className="text-sm font-medium">{alert.message}</div>
-                <div className="text-xs text-muted-foreground">{alert.time}</div>
-              </div>
-            </div>
-          ))}
+        <div className="text-center py-8 text-muted-foreground">
+          {alerts === 0 ? '✅ No hay alertas activas' : `⚠️ ${alerts} alertas requieren atención`}
         </div>
       </CardContent>
     </Card>

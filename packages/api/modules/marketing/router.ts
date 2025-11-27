@@ -18,6 +18,7 @@ import { orchestrateProcedure } from "./procedures/orchestrate";
 import { saveMemoryProcedure } from "./procedures/save-memory";
 import { searchMemoryProcedure } from "./procedures/search-memory";
 import { triggerOrchestrationProcedure } from "./procedures/trigger-orchestration";
+import { godModeStatsProcedure } from "./procedures/god-mode-stats";
 
 export const marketingRouter = {
 	content: {
@@ -48,6 +49,9 @@ export const marketingRouter = {
 		saveMemory: saveMemoryProcedure,
 		searchMemory: searchMemoryProcedure,
 		triggerOrchestration: triggerOrchestrationProcedure,
+	},
+	godMode: {
+		getStats: godModeStatsProcedure,
 	},
 };
 
