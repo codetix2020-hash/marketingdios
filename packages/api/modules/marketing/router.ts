@@ -17,6 +17,7 @@ import { schedulePost } from "./procedures/schedule-post";
 import { orchestrateProcedure } from "./procedures/orchestrate";
 import { saveMemoryProcedure } from "./procedures/save-memory";
 import { searchMemoryProcedure } from "./procedures/search-memory";
+import { triggerOrchestrationProcedure } from "./procedures/trigger-orchestration";
 
 export const marketingRouter = {
 	content: {
@@ -46,6 +47,7 @@ export const marketingRouter = {
 		orchestrate: orchestrateProcedure,
 		saveMemory: saveMemoryProcedure,
 		searchMemory: searchMemoryProcedure,
+		triggerOrchestration: triggerOrchestrationProcedure,
 	},
 };
 
