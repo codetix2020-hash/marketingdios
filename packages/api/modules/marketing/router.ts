@@ -14,6 +14,9 @@ import { listLogs } from "./procedures/list-logs";
 import { listScheduledPosts } from "./procedures/list-scheduled-posts";
 import { listSocialAccounts } from "./procedures/list-social-accounts";
 import { schedulePost } from "./procedures/schedule-post";
+import { orchestrateProcedure } from "./procedures/orchestrate";
+import { saveMemoryProcedure } from "./procedures/save-memory";
+import { searchMemoryProcedure } from "./procedures/search-memory";
 
 export const marketingRouter = {
 	content: {
@@ -38,6 +41,11 @@ export const marketingRouter = {
 	},
 	logs: {
 		list: listLogs,
+	},
+	brain: {
+		orchestrate: orchestrateProcedure,
+		saveMemory: saveMemoryProcedure,
+		searchMemory: searchMemoryProcedure,
 	},
 };
 

@@ -37,5 +37,8 @@
 			"prisma-zod-generator",
 			"sharp"
 		]
+	},
+	"dependencies": {
+		"@anthropic-ai/sdk": "^0.71.0"
 	}
 }

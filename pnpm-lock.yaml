@@ -13,6 +13,10 @@ pnpmfileChecksum: sha256-Nfiv2gH9CKHvJj4I5x8X/1oow3rC7WweFOeIGOKmRfw=
 importers:
 
   .:
+    dependencies:
+      '@anthropic-ai/sdk':
+        specifier: ^0.71.0
+        version: 0.71.0(zod@4.1.13)
     devDependencies:
       '@biomejs/biome':
         specifier: 2.3.5
@@ -828,6 +832,15 @@ packages:
   '@alloc/quick-lru@5.2.0':
     resolution: {integrity: sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw==}
     engines: {node: '>=10'}
+
+  '@anthropic-ai/sdk@0.71.0':
+    resolution: {integrity: sha512-go1XeWXmpxuiTkosSXpb8tokLk2ZLkIRcXpbWVwJM6gH5OBtHOVsfPfGuqI1oW7RRt4qc59EmYbrXRZ0Ng06Jw==}
+    hasBin: true
+    peerDependencies:
+      zod: ^3.25.0 || ^4.0.0
+    peerDependenciesMeta:
+      zod:
+        optional: true
 
   '@aws-crypto/crc32@3.0.0':
     resolution: {integrity: sha512-IzSgsrxUcsrejQbPVilIKy16kAT52EwB6zSaI+M3xxIhKh5+aldEyvI+z6erM7TCLB2BJsFrtHjp6/4/sr+3dA==}
@@ -5185,6 +5198,10 @@ packages:
     engines: {node: '>=6'}
     hasBin: true
 
+  json-schema-to-ts@3.1.1:
+    resolution: {integrity: sha512-+DWg8jCJG2TEnpy7kOm/7/AxaYoaRbjVB4LFZLySZlWn8exGs3A4OLJR966cVvU26N7X9TWxl+Jsw7dzAqKT6g==}
+    engines: {node: '>=16'}
+
   json-schema-traverse@1.0.0:
     resolution: {integrity: sha512-NM8/P9n3XjXhIZn1lLhkFaACTOURQXjWhV4BA/RnOv8xvgqtqpAX9IO4mRQxSx1Rlo4tqzeqb0sOlruaOy3dug==}
 
@@ -6631,6 +6648,9 @@ packages:
   trough@2.2.0:
     resolution: {integrity: sha512-tmMpK00BjZiUyVyvrBK7knerNgmgvcV/KLVyuma/SC+TQN167GrMRciANTz09+k3zW8L8t60jWO1GpfkZdjTaw==}
 
+  ts-algebra@2.0.0:
+    resolution: {integrity: sha512-FPAhNPFMrkwz76P7cdjdmiShwMynZYN6SgOujD1urY4oNm80Ou9oMdmbR45LotcKOXoy7wSmHkRFE6Mxbrhefw==}
+
   ts-is-present@1.2.2:
     resolution: {integrity: sha512-cA5MPLWGWYXvnlJb4TamUUx858HVHBsxxdy8l7jxODOLDyGYnQOllob2A2jyDghGa5iJHs2gzFNHvwGJ0ZfR8g==}
 
@@ -6988,6 +7008,12 @@ snapshots:
       zod: 4.1.13
 
   '@alloc/quick-lru@5.2.0': {}
+
+  '@anthropic-ai/sdk@0.71.0(zod@4.1.13)':
+    dependencies:
+      json-schema-to-ts: 3.1.1
+    optionalDependencies:
+      zod: 4.1.13
 
   '@aws-crypto/crc32@3.0.0':
     dependencies:
@@ -12153,6 +12179,11 @@ snapshots:
 
   jsesc@3.1.0: {}
 
+  json-schema-to-ts@3.1.1:
+    dependencies:
+      '@babel/runtime': 7.28.4
+      ts-algebra: 2.0.0
+
   json-schema-traverse@1.0.0: {}
 
   json-schema-typed@8.0.2: {}
@@ -13944,6 +13975,8 @@ snapshots:
   trim-newlines@1.0.0: {}
 
   trough@2.2.0: {}
+
+  ts-algebra@2.0.0: {}
 
   ts-is-present@1.2.2: {}
 
