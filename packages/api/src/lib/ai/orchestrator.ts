@@ -2,9 +2,19 @@ import Anthropic from '@anthropic-ai/sdk'
 import { prisma } from '@repo/database'
 import { searchMemory } from './embeddings'
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-})
+let anthropicInstance: Anthropic | null = null
+
+function getAnthropicClient() {
+  if (!anthropicInstance) {
+    if (!process.env.ANTHROPIC_API_KEY) {
+      throw new Error('ANTHROPIC_API_KEY is not set')
+    }
+    anthropicInstance = new Anthropic({
+      apiKey: process.env.ANTHROPIC_API_KEY,
+    })
+  }
+  return anthropicInstance
+}
 
 interface OrchestrationContext {
   organizationId: string
@@ -109,6 +119,7 @@ Responde SOLO con JSON válido (sin markdown):
 `
 
   // 6. Llamar a Claude Opus para decisión estratégica
+  const anthropic = getAnthropicClient()
   const decision = await anthropic.messages.create({
     model: 'claude-opus-4-20250514',
     max_tokens: 4000,

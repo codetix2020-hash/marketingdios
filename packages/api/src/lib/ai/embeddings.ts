@@ -1,15 +1,26 @@
 import OpenAI from 'openai'
 import { prisma } from '@repo/database'
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-})
+let openaiInstance: OpenAI | null = null
+
+function getOpenAIClient() {
+  if (!openaiInstance) {
+    if (!process.env.OPENAI_API_KEY) {
+      throw new Error('OPENAI_API_KEY is not set')
+    }
+    openaiInstance = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    })
+  }
+  return openaiInstance
+}
 
 /**
  * Genera embedding de un texto usando OpenAI
  */
 export async function generateEmbedding(text: string): Promise<number[]> {
   try {
+    const openai = getOpenAIClient()
     const response = await openai.embeddings.create({
       model: 'text-embedding-3-small',
       input: text.slice(0, 8000), // Limite de tokens
