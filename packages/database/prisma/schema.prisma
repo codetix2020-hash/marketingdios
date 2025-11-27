@@ -157,6 +157,9 @@ model Organization {
   marketingOnboarding MarketingOnboarding?
   marketingMemories  MarketingMemory[]
   marketingDecisions MarketingDecision[]
+  viralBlueprints    ViralBlueprint[]
+  marketingJobs      MarketingJob[]
+  marketingGuards    MarketingGuard[]
 
   @@unique([slug])
   @@map("organization")
@@ -551,52 +554,97 @@ model MarketingOnboarding {
 }
 
 // ============================================
-// SISTEMA NERVIOSO CENTRAL - MarketingOS Brain
+// MARKETINGOS - SISTEMA NERVIOSO CENTRAL
 // ============================================
 
 model MarketingMemory {
-  id            String   @id @default(cuid())
-  type          String   // "business_dna", "learning", "trend", "prompt_template"
-  content       String   @db.Text
-  embedding     Unsupported("vector(1536)")?
-  metadata      Json?
-  importance    Int      @default(5) // 1-10
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id             String   @id @default(cuid())
+  type           String   // "business_dna", "learning", "trend", "prompt_template"
+  content        String   @db.Text
+  embedding      Json?    // Almacenaremos el vector como JSON
+  metadata       Json?
+  importance     Int      @default(5) // 1-10
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
   organizationId String
-  organization  Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@index([type])
   @@index([organizationId])
+  @@index([importance])
   @@map("marketing_memory")
 }
 
 model MarketingDecision {
   id             String   @id @default(cuid())
-  agentType      String   // "orchestrator", "content", "ads", "sales"
+  agentType      String   // "orchestrator", "content", "ads", "sales", "visual"
   decision       String   @db.Text
   reasoning      String   @db.Text
   context        Json
   outcome        Json?
   success        Boolean?
+  executedAt     DateTime?
   createdAt      DateTime @default(now())
   organizationId String
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@index([agentType])
   @@index([organizationId])
+  @@index([createdAt])
   @@map("marketing_decision")
 }
 
 model ViralBlueprint {
   id          String   @id @default(cuid())
-  platform    String   // "instagram", "tiktok", "twitter", etc
+  platform    String   // "instagram", "tiktok", "twitter", "linkedin"
   hook        String   @db.Text
   structure   String   @db.Text
   cta         String
-  metrics     Json     // views, engagement, etc
+  metrics     Json     // { views: 1000000, engagement: 5.2, saves: 45000 }
   extractedAt DateTime @default(now())
-  
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
   @@index([platform])
+  @@index([extractedAt])
   @@map("viral_blueprint")
+}
+
+model MarketingJob {
+  id             String   @id @default(cuid())
+  name           String
+  type           String   // "content_generation", "campaign_optimization", "lead_nurturing"
+  status         String   // "pending", "running", "completed", "failed"
+  progress       Int      @default(0) // 0-100
+  result         Json?
+  error          String?  @db.Text
+  startedAt      DateTime?
+  completedAt    DateTime?
+  createdAt      DateTime @default(now())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+  @@index([organizationId])
+  @@index([createdAt])
+  @@map("marketing_job")
+}
+
+model MarketingGuard {
+  id             String   @id @default(cuid())
+  guardType      String   // "financial", "reputation", "legal"
+  metric         String   // "cpa", "sentiment", "claim_validity"
+  threshold      Float
+  currentValue   Float
+  status         String   // "ok", "warning", "critical"
+  triggered      Boolean  @default(false)
+  action         String?  @db.Text
+  lastCheck      DateTime @default(now())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([guardType])
+  @@index([status])
+  @@index([organizationId])
+  @@map("marketing_guard")
 }
