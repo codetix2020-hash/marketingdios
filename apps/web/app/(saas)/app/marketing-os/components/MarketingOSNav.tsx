@@ -23,37 +23,37 @@ import {
 const navItems = [
 	{
 		title: "Dashboard",
-		href: "/marketing-os",
+		href: "/app/marketing-os",
 		icon: LayoutDashboard,
 	},
 	{
 		title: "Generar Contenido",
-		href: "/marketing-os/content/generate",
+		href: "/app/marketing-os/content/generate",
 		icon: FileText,
 	},
 	{
 		title: "Análisis SEO",
-		href: "/marketing-os/seo/analyze",
+		href: "/app/marketing-os/seo/analyze",
 		icon: Search,
 	},
 	{
 		title: "Campañas ADS",
-		href: "/marketing-os/ads/create",
+		href: "/app/marketing-os/ads/create",
 		icon: Megaphone,
 	},
 	{
 		title: "CEO Cockpit",
-		href: "/marketing-os/ceo-cockpit",
+		href: "/app/marketing-os/ceo-cockpit",
 		icon: BarChart3,
 	},
 	{
 		title: "Logs",
-		href: "/marketing-os/logs",
+		href: "/app/marketing-os/logs",
 		icon: FileCheck,
 	},
 	{
 		title: "Onboarding",
-		href: "/marketing-os/onboarding",
+		href: "/app/marketing-os/onboarding",
 		icon: Sparkles,
 	},
 ];

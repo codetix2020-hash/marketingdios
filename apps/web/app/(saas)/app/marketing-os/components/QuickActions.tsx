@@ -22,28 +22,28 @@ export function QuickActions({ organizationId }: QuickActionsProps) {
 				<CardDescription>Accede rápidamente a las funciones principales</CardDescription>
 			</CardHeader>
 			<CardContent className="space-y-2">
-				<Link href={`/marketing-os/content/generate`}>
+				<Link href={`/app/marketing-os/content/generate`}>
 					<Button variant="outline" className="w-full justify-start">
 						<FileText className="mr-2 h-4 w-4" />
 						Generar Contenido
 					</Button>
 				</Link>
 
-				<Link href={`/marketing-os/seo/analyze`}>
+				<Link href={`/app/marketing-os/seo/analyze`}>
 					<Button variant="outline" className="w-full justify-start">
 						<Search className="mr-2 h-4 w-4" />
 						Analizar SEO
 					</Button>
 				</Link>
 
-				<Link href={`/marketing-os/ads/create`}>
+				<Link href={`/app/marketing-os/ads/create`}>
 					<Button variant="outline" className="w-full justify-start">
 						<Megaphone className="mr-2 h-4 w-4" />
 						Crear Campaña ADS
 					</Button>
 				</Link>
 
-				<Link href={`/marketing-os/publications`}>
+				<Link href={`/app/marketing-os/social/schedule`}>
 					<Button variant="outline" className="w-full justify-start">
 						<Plus className="mr-2 h-4 w-4" />
 						Programar Publicación
