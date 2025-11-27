@@ -2,8 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@ui/components/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@ui/components/tabs'
 import { Activity, Brain, Zap, TrendingUp, DollarSign, Users, Target, AlertTriangle, Clock, Shield, Cpu } from 'lucide-react'
 import { orpcClient } from '@shared/lib/orpc-client'
-import { getSession } from '@saas/auth/lib/server'
-import { getOrganizationList } from '@saas/organizations/lib/server'
+import { getSession, getOrganizationList } from '@saas/auth/lib/server'
 import { redirect } from 'next/navigation'
 
 export default async function GodModePage() {

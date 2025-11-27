@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { protectedProcedure } from '../../../orpc/procedures'
-import { TRPCError } from '@trpc/server'
+import { prisma } from '@repo/database'
 
 export const godModeStatsProcedure = protectedProcedure
   .input(
@@ -8,22 +8,19 @@ export const godModeStatsProcedure = protectedProcedure
       organizationId: z.string(),
     })
   )
-  .query(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     const { organizationId } = input
 
     // Verificar acceso
-    const member = await ctx.db.member.findFirst({
+    const member = await prisma.member.findFirst({
       where: {
-        userId: ctx.user.id,
+        userId: context.user.id,
         organizationId,
       },
     })
 
     if (!member) {
-      throw new TRPCError({
-        code: 'FORBIDDEN',
-        message: 'No tienes acceso a esta organización',
-      })
+      throw new Error('No tienes acceso a esta organización')
     }
 
     // 1. Métricas principales (últimos 30 días)
@@ -39,22 +36,22 @@ export const godModeStatsProcedure = protectedProcedure
       activeJobs,
     ] = await Promise.all([
       // Contenido creado
-      ctx.db.marketingContent.count({
+      prisma.marketingContent.count({
         where: { organizationId, createdAt: { gte: thirtyDaysAgo } },
       }),
 
       // Contenido hoy
-      ctx.db.marketingContent.count({
+      prisma.marketingContent.count({
         where: { organizationId, createdAt: { gte: oneDayAgo } },
       }),
 
       // Campañas activas
-      ctx.db.marketingAdCampaign.count({
+      prisma.marketingAdCampaign.count({
         where: { organizationId, status: 'ACTIVE' },
       }),
 
       // Guardias
-      ctx.db.marketingGuard.findMany({
+      prisma.marketingGuard.findMany({
         where: { organizationId },
         select: {
           guardType: true,
@@ -64,7 +61,7 @@ export const godModeStatsProcedure = protectedProcedure
       }),
 
       // Decisiones recientes
-      ctx.db.marketingDecision.findMany({
+      prisma.marketingDecision.findMany({
         where: { organizationId },
         take: 10,
         orderBy: { createdAt: 'desc' },
@@ -79,7 +76,7 @@ export const godModeStatsProcedure = protectedProcedure
       }),
 
       // Jobs activos
-      ctx.db.marketingJob.findMany({
+      prisma.marketingJob.findMany({
         where: {
           organizationId,
           status: { in: ['pending', 'running'] },
@@ -111,7 +108,7 @@ export const godModeStatsProcedure = protectedProcedure
     ]
 
     // 4. Calcular salud de guardias
-    const guardsOkCount = totalGuards.filter(g => g.status === 'ok').length
+    const guardsOkCount = totalGuards.filter((g: any) => g.status === 'ok').length
     const guardsHealth = totalGuards.length > 0 ? (guardsOkCount / totalGuards.length) * 100 : 100
 
     return {
@@ -136,7 +133,7 @@ export const godModeStatsProcedure = protectedProcedure
         guards: guardsHealth,
       },
       agents: agentsStatus,
-      recentDecisions: recentDecisions.slice(0, 3).map(d => {
+      recentDecisions: recentDecisions.slice(0, 3).map((d: any) => {
         let decision
         try {
           decision = JSON.parse(d.decision)
@@ -151,7 +148,7 @@ export const godModeStatsProcedure = protectedProcedure
           success: d.success !== false,
         }
       }),
-      activeJobs: activeJobs.map(j => ({
+      activeJobs: activeJobs.map((j: any) => ({
         id: j.id,
         name: j.name,
         type: j.type,
@@ -159,10 +156,10 @@ export const godModeStatsProcedure = protectedProcedure
         status: j.status,
       })),
       guards: {
-        financial: totalGuards.filter(g => g.guardType === 'financial' && !g.triggered).length,
-        reputation: totalGuards.filter(g => g.guardType === 'reputation' && !g.triggered).length,
-        legal: totalGuards.filter(g => g.guardType === 'legal' && !g.triggered).length,
-        alerts: totalGuards.filter(g => g.triggered).length,
+        financial: totalGuards.filter((g: any) => g.guardType === 'financial' && !g.triggered).length,
+        reputation: totalGuards.filter((g: any) => g.guardType === 'reputation' && !g.triggered).length,
+        legal: totalGuards.filter((g: any) => g.guardType === 'legal' && !g.triggered).length,
+        alerts: totalGuards.filter((g: any) => g.triggered).length,
       },
       activeCampaigns,
     }

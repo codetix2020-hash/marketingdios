@@ -1,4 +1,3 @@
-import { TRPCError } from '@trpc/server'
 import { z } from 'zod'
 import { searchMemory } from '../../../src/lib/ai/embeddings'
 import { protectedProcedure } from '../../../orpc/procedures'
@@ -12,7 +11,7 @@ export const searchMemoryProcedure = protectedProcedure
       limit: z.number().optional(),
     })
   )
-  .query(async ({ input }) => {
+  .handler(async ({ input }) => {
     try {
       const memories = await searchMemory(
         input.organizationId,
@@ -25,11 +24,7 @@ export const searchMemoryProcedure = protectedProcedure
         memories,
       }
     } catch (error) {
-      throw new TRPCError({
-        code: 'INTERNAL_SERVER_ERROR',
-        message: 'Failed to search memory',
-        cause: error,
-      })
+      throw new Error('Failed to search memory')
     }
   })
 

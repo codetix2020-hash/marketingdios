@@ -1,4 +1,3 @@
-import { TRPCError } from '@trpc/server'
 import { z } from 'zod'
 import { orchestrate } from '../../../src/lib/ai/orchestrator'
 import { protectedProcedure } from '../../../orpc/procedures'
@@ -9,7 +8,7 @@ export const orchestrateProcedure = protectedProcedure
       organizationId: z.string(),
     })
   )
-  .mutation(async ({ input }) => {
+  .handler(async ({ input }) => {
     try {
       const decision = await orchestrate({
         organizationId: input.organizationId,
@@ -20,11 +19,7 @@ export const orchestrateProcedure = protectedProcedure
         decision,
       }
     } catch (error) {
-      throw new TRPCError({
-        code: 'INTERNAL_SERVER_ERROR',
-        message: 'Failed to execute orchestration',
-        cause: error,
-      })
+      throw new Error('Failed to execute orchestration')
     }
   })
 

@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { protectedProcedure } from '../../../orpc/procedures'
 import { orchestrationCycle } from '../../../jobs/marketing/orchestration-cycle'
-import { TRPCError } from '@trpc/server'
+import { prisma } from '@repo/database'
 
 export const triggerOrchestrationProcedure = protectedProcedure
   .input(
@@ -9,21 +9,18 @@ export const triggerOrchestrationProcedure = protectedProcedure
       organizationId: z.string(),
     })
   )
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     try {
       // Verificar que el usuario tiene acceso a esta organización
-      const member = await ctx.db.member.findFirst({
+      const member = await prisma.member.findFirst({
         where: {
-          userId: ctx.user.id,
+          userId: context.user.id,
           organizationId: input.organizationId,
         },
       })
 
       if (!member) {
-        throw new TRPCError({
-          code: 'FORBIDDEN',
-          message: 'No tienes acceso a esta organización',
-        })
+        throw new Error('No tienes acceso a esta organización')
       }
 
       // Ejecutar job inmediatamente
@@ -36,11 +33,7 @@ export const triggerOrchestrationProcedure = protectedProcedure
         jobId: result.id,
       }
     } catch (error) {
-      throw new TRPCError({
-        code: 'INTERNAL_SERVER_ERROR',
-        message: 'Failed to trigger orchestration',
-        cause: error,
-      })
+      throw new Error('Failed to trigger orchestration')
     }
   })
 

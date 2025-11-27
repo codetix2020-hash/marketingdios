@@ -1,4 +1,3 @@
-import { TRPCError } from '@trpc/server'
 import { z } from 'zod'
 import { saveMemory } from '../../../src/lib/ai/embeddings'
 import { protectedProcedure } from '../../../orpc/procedures'
@@ -13,7 +12,7 @@ export const saveMemoryProcedure = protectedProcedure
       importance: z.number().min(1).max(10).optional(),
     })
   )
-  .mutation(async ({ input }) => {
+  .handler(async ({ input }) => {
     try {
       const memory = await saveMemory(
         input.organizationId,
@@ -28,11 +27,7 @@ export const saveMemoryProcedure = protectedProcedure
         memoryId: memory.id,
       }
     } catch (error) {
-      throw new TRPCError({
-        code: 'INTERNAL_SERVER_ERROR',
-        message: 'Failed to save memory',
-        cause: error,
-      })
+      throw new Error('Failed to save memory')
     }
   })
 
