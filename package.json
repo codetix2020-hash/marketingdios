@@ -10,7 +10,7 @@
 		"check": "biome check",
 		"clean": "turbo clean",
 		"format": "biome format . --write",
-		"postinstall": "cd packages/database && prisma generate"
+		"postinstall": "cd packages/database && pnpm prisma generate"
 	},
 	"engines": {
 		"node": ">=20"
