@@ -22,11 +22,53 @@ export default async function GodModePage() {
   }
 
   // Fetch real-time stats
-  const stats = await orpcClient.marketing.godMode.getStats({
-    organizationId: activeOrganizationId,
-  })
+  let stats
+  try {
+    stats = await orpcClient.marketing.godMode.getStats({
+      organizationId: activeOrganizationId,
+    })
+  } catch (error) {
+    console.error('Error fetching God Mode stats:', error)
+    // Retornar datos por defecto si falla
+    stats = {
+      metrics: {
+        revenue: 0,
+        revenueChange: 0,
+        leads: 0,
+        leadsChange: 0,
+        contentCreated: 0,
+        contentToday: 0,
+        cac: 0,
+        cacChange: 0,
+      },
+      orchestration: {
+        nextCycle: new Date(Date.now() + 6 * 60 * 60 * 1000),
+        lastExecution: new Date(),
+      },
+      systemHealth: {
+        agents: 0,
+        database: 0,
+        apis: 0,
+        guards: 0,
+      },
+      agents: [],
+      recentDecisions: [],
+      activeJobs: [],
+      guards: {
+        financial: 0,
+        reputation: 0,
+        legal: 0,
+        alerts: 0,
+      },
+      activeCampaigns: 0,
+    }
+  }
 
-  const timeUntilNext = Math.floor((stats.orchestration.nextCycle.getTime() - Date.now()) / 1000)
+  // nextCycle puede venir como string ISO o Date
+  const nextCycleDate = stats.orchestration.nextCycle instanceof Date 
+    ? stats.orchestration.nextCycle 
+    : new Date(stats.orchestration.nextCycle || Date.now() + 6 * 60 * 60 * 1000)
+  const timeUntilNext = Math.max(0, Math.floor((nextCycleDate.getTime() - Date.now()) / 1000))
   const hours = Math.floor(timeUntilNext / 3600)
   const minutes = Math.floor((timeUntilNext % 3600) / 60)
   const seconds = timeUntilNext % 60

@@ -100,8 +100,9 @@ export const godModeStatsProcedure = protectedProcedure
 
     // 2. Calcular próxima orquestación
     const lastDecision = recentDecisions[0]
-    const nextOrchestration = lastDecision?.executedAt
-      ? new Date(lastDecision.executedAt.getTime() + 6 * 60 * 60 * 1000)
+    const lastExecTime = lastDecision?.executedAt || lastDecision?.createdAt
+    const nextOrchestration = lastExecTime
+      ? new Date(new Date(lastExecTime).getTime() + 6 * 60 * 60 * 1000)
       : new Date(Date.now() + 6 * 60 * 60 * 1000)
 
     // 3. Agentes status
@@ -130,8 +131,8 @@ export const godModeStatsProcedure = protectedProcedure
         cacChange: -32.1,
       },
       orchestration: {
-        nextCycle: nextOrchestration,
-        lastExecution: lastDecision?.executedAt || lastDecision?.createdAt || new Date(),
+        nextCycle: nextOrchestration.toISOString(),
+        lastExecution: (lastDecision?.executedAt || lastDecision?.createdAt || new Date()).toISOString(),
       },
       systemHealth: {
         agents: 100,
