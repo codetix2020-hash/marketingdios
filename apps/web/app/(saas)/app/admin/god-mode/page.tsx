@@ -4,6 +4,7 @@ import { Activity, Brain, Zap, TrendingUp, DollarSign, Users, Target, AlertTrian
 import { orpcClient } from '@shared/lib/orpc-client'
 import { getSession, getOrganizationList } from '@saas/auth/lib/server'
 import { redirect } from 'next/navigation'
+import { SeedMemoryButton } from './components/SeedMemoryButton'
 
 export default async function GodModePage() {
   const session = await getSession()
@@ -124,6 +125,20 @@ export default async function GodModePage() {
 
         {/* TAB 2: AGENTES */}
         <TabsContent value="agents" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Brain className="h-5 w-5" />
+                Configuración de Memoria
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-4">
+                Pobla la memoria inicial de MarketingOS con el ADN de CodeTix, productos, casos de éxito y estrategias.
+              </p>
+              <SeedMemoryButton organizationId={activeOrganizationId} />
+            </CardContent>
+          </Card>
           <AgentsGrid agents={stats.agents} />
         </TabsContent>
 
