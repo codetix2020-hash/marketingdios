@@ -1,3 +1,4 @@
+import { createOrganization } from "./procedures/create-organization";
 import { findOrganization } from "./procedures/find-organization";
 import { listOrganizations } from "./procedures/list-organizations";
 import { listUsers } from "./procedures/list-users";
@@ -9,5 +10,6 @@ export const adminRouter = {
 	organizations: {
 		list: listOrganizations,
 		find: findOrganization,
+		create: createOrganization,
 	},
 };
