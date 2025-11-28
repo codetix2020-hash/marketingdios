@@ -45,6 +45,7 @@ export const createOrganization = adminProcedure
       data: {
         name,
         slug: finalSlug,
+        createdAt: new Date(),
       },
     })
 
