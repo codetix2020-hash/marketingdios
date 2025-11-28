@@ -3,6 +3,13 @@ import { protectedProcedure } from '../../../orpc/procedures'
 import { prisma } from '@repo/database'
 
 export const godModeStatsProcedure = protectedProcedure
+  .route({
+    method: 'GET',
+    path: '/marketing/god-mode/stats',
+    tags: ['Marketing', 'God Mode'],
+    summary: 'Get God Mode statistics',
+    description: 'Get real-time statistics for the God Mode Control Center',
+  })
   .input(
     z.object({
       organizationId: z.string(),
