@@ -143,8 +143,11 @@ async function getPendingTasks(organizationId: string) {
 }
 
 async function createContentJob(organizationId: string, content: any) {
-  // Crear job de generación de contenido
-  // Si viene productId, asociar el job al producto
+  // Asegurarse de que productId existe
+  if (!content.productId) {
+    console.warn('⚠️ Content plan sin productId, usando organizationId')
+  }
+
   return prisma.marketingJob.create({
     data: {
       organizationId,
@@ -153,8 +156,16 @@ async function createContentJob(organizationId: string, content: any) {
       status: 'pending',
       progress: 0,
       result: {
-        contentPlan: content,
-        productId: content.productId, // Guardar productId en el resultado
+        productId: content.productId,
+        contentTask: {
+          productId: content.productId,
+          type: content.type || 'post',
+          platform: content.platform || 'instagram',
+          topic: content.topic,
+          angle: content.angle,
+          hook: content.hook,
+          cta: content.cta,
+        },
       },
     },
   })

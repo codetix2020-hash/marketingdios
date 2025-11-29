@@ -20,6 +20,7 @@ import { searchMemoryProcedure } from "./procedures/search-memory";
 import { seedMemoryProcedure } from "./procedures/seed-memory";
 import { triggerOrchestrationProcedure } from "./procedures/trigger-orchestration";
 import { godModeStatsProcedure } from "./procedures/god-mode-stats";
+import { processJobProcedure } from "./procedures/process-job";
 
 export const marketingRouter = {
 	content: {
@@ -54,6 +55,9 @@ export const marketingRouter = {
 	},
 	godMode: {
 		getStats: godModeStatsProcedure,
+	},
+	jobs: {
+		process: processJobProcedure,
 	},
 };
 
