@@ -23,6 +23,11 @@ import { godModeStatsProcedure } from "./procedures/god-mode-stats";
 import { processJobProcedure } from "./procedures/process-job";
 import { generateImageProcedure, generateImageVariantsProcedure } from "./procedures/generate-image";
 import { generateEmailSequenceProcedure, sendEmailProcedure } from "./procedures/email";
+import {
+  generateVoiceoverProcedure,
+  generateVideoScriptProcedure,
+  generateScriptAndVoiceProcedure,
+} from "./procedures/voice";
 
 export const marketingRouter = {
 	content: {
@@ -68,6 +73,11 @@ export const marketingRouter = {
 	email: {
 		generateSequence: generateEmailSequenceProcedure,
 		send: sendEmailProcedure,
+	},
+	voice: {
+		generate: generateVoiceoverProcedure,
+		script: generateVideoScriptProcedure,
+		complete: generateScriptAndVoiceProcedure,
 	},
 };
 
