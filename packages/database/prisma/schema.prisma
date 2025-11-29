@@ -160,6 +160,7 @@ model Organization {
   viralBlueprints    ViralBlueprint[]
   marketingJobs      MarketingJob[]
   marketingGuards    MarketingGuard[]
+  saasProducts       SaasProduct[]
 
   @@unique([slug])
   @@map("organization")
@@ -262,6 +263,8 @@ model MarketingContent {
   aiModel        String?
   optimizationData Json?               // Datos de optimización SEO/ADS
   publishedAt    DateTime?
+  productId      String?
+  product        SaasProduct? @relation(fields: [productId], references: [id], onDelete: SetNull)
   createdAt      DateTime              @default(now())
   updatedAt      DateTime              @updatedAt
   publications   MarketingPublication[]
@@ -330,6 +333,8 @@ model MarketingAdCampaign {
   aiGenerated    Boolean           @default(false)
   externalId     String?           // ID en la plataforma externa
   performance    MarketingAdPerformance[]
+  productId     String?
+  product       SaasProduct? @relation(fields: [productId], references: [id], onDelete: SetNull)
   createdAt      DateTime          @default(now())
   updatedAt      DateTime          @updatedAt
 
@@ -647,4 +652,86 @@ model MarketingGuard {
   @@index([status])
   @@index([organizationId])
   @@map("marketing_guard")
+}
+
+// ============================================
+// INTEGRACIÓN CON AUTO-SAAS BUILDER
+// ============================================
+
+model SaasProduct {
+  id                String   @id @default(cuid())
+  name              String
+  slug              String   @unique
+  description       String   @db.Text
+  targetAudience    String   @db.Text
+  features          Json     // Array de features
+  pricing           Json     // Pricing tiers
+  usp               String   @db.Text // Unique Selling Proposition
+  status            String   @default("pending") // pending, active, paused
+  
+  // Metadata del Auto-SaaS Builder
+  builderProjectId  String   @unique
+  builderStatus     String   // building, deployed, live
+  deploymentUrl     String?
+  repositoryUrl     String?
+  
+  // Marketing automation
+  marketingEnabled  Boolean  @default(true)
+  marketingMemoryId String?  // ID de memoria creada
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  organizationId    String
+  organization      Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  // Relaciones
+  marketingCampaigns MarketingAdCampaign[]
+  content            MarketingContent[]
+  inbox              AutoSaasInbox[]
+  outbox             AutoSaasOutbox[]
+  
+  @@index([slug])
+  @@index([builderProjectId])
+  @@index([organizationId])
+  @@map("saas_product")
+}
+
+model AutoSaasInbox {
+  id             String   @id @default(cuid())
+  type           String   // "feature_request", "market_opportunity", "user_feedback"
+  priority       Int      @default(5) // 1-10
+  title          String
+  description    String   @db.Text
+  data           Json     // Datos adicionales
+  
+  // Estado
+  status         String   @default("pending") // pending, processing, completed, rejected
+  processedAt    DateTime?
+  result         Json?
+  
+  createdAt      DateTime @default(now())
+  productId      String?
+  product        SaasProduct? @relation(fields: [productId], references: [id], onDelete: SetNull)
+
+  @@index([status])
+  @@index([priority])
+  @@index([productId])
+  @@map("auto_saas_inbox")
+}
+
+model AutoSaasOutbox {
+  id             String   @id @default(cuid())
+  type           String   // "new_product", "product_update", "deployment"
+  payload        Json
+  status         String   @default("pending") // pending, processing, completed, failed
+  processedAt    DateTime?
+  error          String?  @db.Text
+  
+  createdAt      DateTime @default(now())
+  productId      String?
+  product        SaasProduct? @relation(fields: [productId], references: [id], onDelete: SetNull)
+
+  @@index([status])
+  @@index([productId])
+  @@map("auto_saas_outbox")
 }
