@@ -22,6 +22,7 @@ import { triggerOrchestrationProcedure } from "./procedures/trigger-orchestratio
 import { godModeStatsProcedure } from "./procedures/god-mode-stats";
 import { processJobProcedure } from "./procedures/process-job";
 import { generateImageProcedure, generateImageVariantsProcedure } from "./procedures/generate-image";
+import { generateEmailSequenceProcedure, sendEmailProcedure } from "./procedures/email";
 
 export const marketingRouter = {
 	content: {
@@ -63,6 +64,10 @@ export const marketingRouter = {
 	visual: {
 		generate: generateImageProcedure,
 		variants: generateImageVariantsProcedure,
+	},
+	email: {
+		generateSequence: generateEmailSequenceProcedure,
+		send: sendEmailProcedure,
 	},
 };
 
