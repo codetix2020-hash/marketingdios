@@ -286,3 +286,64 @@ export async function generateMultiFormat(
   }
 }
 
+/**
+ * Generar contenido con imagen automática
+ */
+import { generateImage } from './visual-agent'
+
+export async function generateContentWithImage(task: ContentTask) {
+  // 1. Generar contenido textual
+  const content = await generateContent(task)
+
+  // 2. Generar imagen complementaria
+  let contentData: any
+  try {
+    contentData = typeof content.content === 'string' 
+      ? JSON.parse(content.content) 
+      : content.content
+  } catch {
+    contentData = { raw: content.content }
+  }
+
+  const imagePrompt = contentData.hook || contentData.title || task.topic
+
+  try {
+    const image = await generateImage({
+      productId: task.productId,
+      prompt: imagePrompt,
+      purpose: 'social_post',
+      aspectRatio: '1:1',
+      userId: task.userId,
+    })
+
+    // 3. Actualizar contenido con imagen
+    await prisma.marketingContent.update({
+      where: { id: content.id },
+      data: {
+        content: JSON.stringify({
+          ...contentData,
+          imageUrl: image.imageUrl,
+          imageId: image.id,
+        }),
+        metadata: {
+          ...(contentData.metadata || {}),
+          imageUrl: image.imageUrl,
+          imageId: image.id,
+        },
+      },
+    })
+
+    return {
+      ...content,
+      content: {
+        ...contentData,
+        imageUrl: image.imageUrl,
+      },
+    }
+  } catch (error) {
+    console.error('Error generando imagen:', error)
+    // Si falla la imagen, devolver solo el contenido textual
+    return content
+  }
+}
+
