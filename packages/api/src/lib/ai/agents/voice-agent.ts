@@ -1,7 +1,7 @@
 import { ElevenLabs } from '@elevenlabs/elevenlabs-js'
 import { prisma } from '@repo/database'
 
-let elevenLabsClient: ElevenLabsClient | null = null
+let elevenLabsClient: ElevenLabs | null = null
 let anthropicInstance: any = null
 
 function getElevenLabsClient() {
@@ -9,7 +9,7 @@ function getElevenLabsClient() {
     if (!process.env.ELEVENLABS_API_KEY) {
       throw new Error('ELEVENLABS_API_KEY is not set')
     }
-    elevenLabsClient = new ElevenLabsClient({
+    elevenLabsClient = new ElevenLabs({
       apiKey: process.env.ELEVENLABS_API_KEY,
     })
   }
