@@ -16,35 +16,79 @@ export const orchestrationCycle = task({
       const pendingTasks = await getPendingTasks(payload.organizationId)
 
       // 3. Ejecutar orquestación
-      const decision = await orchestrate({
+      const result = await orchestrate({
         organizationId: payload.organizationId,
         recentMetrics,
         pendingTasks,
       })
 
-      console.log('✅ Decisión tomada:', {
-        contentPlanCount: decision.contentPlan?.length || 0,
-        optimizationsCount: decision.optimizations?.length || 0,
-        learningsCount: decision.learningsToApply?.length || 0,
-      })
+      // Manejar respuesta multi-tenant (con productos) o tradicional
+      if ('productsOrchestrated' in result) {
+        // Orquestación multi-tenant por productos
+        console.log('✅ Orquestación multi-tenant completada:', {
+          productsOrchestrated: result.productsOrchestrated,
+          totalProducts: result.totalProducts,
+        })
 
-      // 4. Ejecutar plan de contenido
-      for (const content of decision.contentPlan || []) {
-        await createContentJob(payload.organizationId, content)
-      }
+        let totalContentJobs = 0
+        let totalOptimizations = 0
 
-      // 5. Ejecutar optimizaciones
-      for (const optimization of decision.optimizations || []) {
-        await executeOptimization(payload.organizationId, optimization)
-      }
+        // Procesar decisiones de cada producto
+        for (const decision of result.decisions || []) {
+          // Ejecutar plan de contenido
+          for (const content of decision.contentPlan || []) {
+            await createContentJob(payload.organizationId, content)
+            totalContentJobs++
+          }
 
-      return {
-        success: true,
-        decision,
-        executed: {
-          contentJobs: decision.contentPlan?.length || 0,
-          optimizations: decision.optimizations?.length || 0,
-        },
+          // Ejecutar optimizaciones
+          for (const optimization of decision.optimizations || []) {
+            await executeOptimization(payload.organizationId, optimization)
+            totalOptimizations++
+          }
+
+          // Ejecutar experimentos
+          for (const experiment of decision.experiments || []) {
+            await createExperimentJob(payload.organizationId, experiment)
+          }
+        }
+
+        return {
+          success: true,
+          type: 'multi-tenant',
+          result,
+          executed: {
+            contentJobs: totalContentJobs,
+            optimizations: totalOptimizations,
+          },
+        }
+      } else {
+        // Orquestación tradicional (sin productos)
+        console.log('✅ Decisión tomada:', {
+          contentPlanCount: result.contentPlan?.length || 0,
+          optimizationsCount: result.optimizations?.length || 0,
+          learningsCount: result.learningsToApply?.length || 0,
+        })
+
+        // 4. Ejecutar plan de contenido
+        for (const content of result.contentPlan || []) {
+          await createContentJob(payload.organizationId, content)
+        }
+
+        // 5. Ejecutar optimizaciones
+        for (const optimization of result.optimizations || []) {
+          await executeOptimization(payload.organizationId, optimization)
+        }
+
+        return {
+          success: true,
+          type: 'traditional',
+          decision: result,
+          executed: {
+            contentJobs: result.contentPlan?.length || 0,
+            optimizations: result.optimizations?.length || 0,
+          },
+        }
       }
     } catch (error) {
       console.error('❌ Error en orquestación:', error)
@@ -100,15 +144,17 @@ async function getPendingTasks(organizationId: string) {
 
 async function createContentJob(organizationId: string, content: any) {
   // Crear job de generación de contenido
+  // Si viene productId, asociar el job al producto
   return prisma.marketingJob.create({
     data: {
       organizationId,
-      name: `Generate ${content.type} for ${content.platform}`,
+      name: `Generate ${content.type} for ${content.platform}${content.productId ? ` (Product: ${content.productId})` : ''}`,
       type: 'content_generation',
       status: 'pending',
       progress: 0,
       result: {
         contentPlan: content,
+        productId: content.productId, // Guardar productId en el resultado
       },
     },
   })
@@ -125,6 +171,22 @@ async function executeOptimization(organizationId: string, optimization: any) {
       progress: 0,
       result: {
         optimization,
+      },
+    },
+  })
+}
+
+async function createExperimentJob(organizationId: string, experiment: any) {
+  // Crear job de experimento
+  return prisma.marketingJob.create({
+    data: {
+      organizationId,
+      name: `Experiment: ${experiment.hypothesis}`,
+      type: 'experiment',
+      status: 'pending',
+      progress: 0,
+      result: {
+        experiment,
       },
     },
   })
