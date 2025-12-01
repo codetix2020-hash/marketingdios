@@ -8,6 +8,7 @@ import { cn } from "@ui/lib";
 import {
 	BotMessageSquareIcon,
 	ChevronRightIcon,
+	DollarSign,
 	HomeIcon,
 	SettingsIcon,
 	UserCog2Icon,
@@ -43,6 +44,12 @@ export function NavBar() {
 			href: "/app/marketing-os",
 			icon: RocketIcon,
 			isActive: pathname.startsWith("/app/marketing-os"),
+		},
+		{
+			label: "Finance",
+			href: "/app/finance",
+			icon: DollarSign,
+			isActive: pathname.startsWith("/app/finance"),
 		},
 		{
 			label: t("app.menu.aiChatbot"),

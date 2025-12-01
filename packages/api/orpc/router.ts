@@ -3,6 +3,7 @@ import { adminRouter } from "../modules/admin/router";
 import { aiRouter } from "../modules/ai/router";
 import { autosaasRouter } from "../modules/autosaas/router";
 import { contactRouter } from "../modules/contact/router";
+import { financeRouter } from "../modules/finance/router";
 import { marketingRouter } from "../modules/marketing/router";
 import { newsletterRouter } from "../modules/newsletter/router";
 import { organizationsRouter } from "../modules/organizations/router";
@@ -20,6 +21,7 @@ export const router = publicProcedure.router({
 	ai: aiRouter,
 	marketing: marketingRouter,
 	autosaas: autosaasRouter,
+	finance: financeRouter,
 });
 
 export type ApiRouterClient = RouterClient<typeof router>;

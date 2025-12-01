@@ -1,7 +1,21 @@
 ---
 description: 
 globs: 
-alwaysApply: true
+alwaysApply: trueTAREA: Crear organización CodeTix manualmente en la base de datos
+
+Usa la DATABASE_URL de Railway:
+postgresql://neondb_owner:npg_6baOIu3gVYFo@ep-red-bush-ah8rov5p-pooler.c-3.us-east-1.aws.neon.tech/neondb?connect_timeout=15&sslmode=require
+
+Crea un script temporal que:
+
+1. Conecte a la base de datos
+2. Busque el usuario codetix2020@gmail.com
+3. Cree una organización "CodeTix" 
+4. Asocie el usuario como owner/admin de esa organización
+
+Ejecuta el script y reporta el resultado.
+
+NO uses npx tsx, usa node directo con un script simple .js
 ---
 This rule describes the basic project structure of the repository and where to find or add certain parts of the application:
 
